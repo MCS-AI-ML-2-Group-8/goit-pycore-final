@@ -60,7 +60,7 @@ class Note(Base):
     note_id: Mapped[int] = mapped_column("note_id", Integer, primary_key=True)
     text: Mapped[str] = mapped_column("text", String, nullable=False)
 
-    contact: Mapped[Contact] = relationship(secondary="contact_tags", back_populates="notes")
+    contact: Mapped[Contact] = relationship(secondary="contact_notes", back_populates="notes")
     tags: Mapped[list[Tag]] = relationship(secondary="note_tags", back_populates="notes")
 
     @override
