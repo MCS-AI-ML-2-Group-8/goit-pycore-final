@@ -14,7 +14,7 @@ class Contact(Base):
 
     contact_id: Mapped[int] = mapped_column("contact_id", Integer, primary_key=True)
     name: Mapped[str] = mapped_column("name", String(64), nullable=False)
-    date_of_birth: Mapped[date] = mapped_column("date_of_birth", Date, nullable=True)
+    date_of_birth: Mapped[date | None] = mapped_column("date_of_birth", Date, nullable=True)
 
     phones: Mapped[list[Phone]] = relationship(back_populates="contact", cascade="all")
     emails: Mapped[list[Email]] = relationship(back_populates="contact", cascade="all")
