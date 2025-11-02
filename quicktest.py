@@ -1,8 +1,9 @@
 from sqlalchemy import create_engine
 from data.models import Base
 from data.contact_commands import ContactCommands, CreateContact
-from data.note_commands import AddTag, CreateNote, NoteCommands, RemoveTag, UpdateNote
+from data.note_commands import CreateNote, NoteCommands, UpdateNote
 from data.note_queries import NoteQueries
+from data.tag_commands import AddTag, RemoveTag
 
 engine = create_engine("sqlite:///:memory:")
 

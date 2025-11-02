@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from data.abstractions import DomainCommand, DatabaseCommandHandler
 from data.exceptions import ContactNotFound, NoteNotFound, TagNotFound
 from data.models import Contact, Note, Tag
+from data.tag_commands import AddTag, RemoveTag
 
 
 class CreateNote(DomainCommand):
@@ -10,12 +11,6 @@ class CreateNote(DomainCommand):
 
 class UpdateNote(DomainCommand):
     text: str
-
-class AddTag(DomainCommand):
-    label: str
-
-class RemoveTag(DomainCommand):
-    label: str
 
 
 class NoteCommands(DatabaseCommandHandler):

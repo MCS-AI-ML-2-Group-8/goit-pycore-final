@@ -5,6 +5,12 @@ from data.models import Contact, Note
 
 
 class NoteQueries(DatabaseQueryHandler):
+    def get_notes(self) -> list[Note]:
+        with Session(self.engine) as session:
+            query = select(Note)
+            notes = session.scalars(query)
+            return list(notes)
+
     def get_notes_for_contact(self, contact_id: int) -> list[Note]:
         with Session(self.engine) as session:
             query = select(Note).where(Note.contact.has(Contact.contact_id == contact_id))
