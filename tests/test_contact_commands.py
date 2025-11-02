@@ -1,7 +1,7 @@
 from datetime import date
 from uuid import uuid4
 from sqlalchemy import create_engine
-from data.contact_commands import ContactAlreadyExists, ContactCommands, CreateContact, DeleteContactById, UpdateContactById
+from data.contact_commands import ContactAlreadyExists, ContactCommands, CreateContact, UpdateContact
 from data.models import Base
 
 engine = create_engine("sqlite:///contacts_test.db")
@@ -40,12 +40,11 @@ def test_update_contact():
     created_contact = contact_commands.add_contact(create_contact)
 
     # Update
-    update_contact = UpdateContactById(
-        contact_id=created_contact.contact_id,
+    update_contact = UpdateContact(
         name=f"Jane Smith {test_id}",
         date_of_birth=date(1990, 10, 27)
     )
-    updated_contact = contact_commands.update_contact_by_id(update_contact)
+    updated_contact = contact_commands.update_contact(created_contact.contact_id, update_contact)
 
     assert updated_contact.contact_id == created_contact.contact_id, "Contact id hasn't changed"
     assert updated_contact.name == update_contact.name
@@ -57,9 +56,12 @@ def test_delete_contact():
         date_of_birth=None
     )
     created_contact = contact_commands.add_contact(create_contact)
+    contact_commands.delete_contact(created_contact.contact_id)
 
-    # Update
-    delete_contact = DeleteContactById(
-        contact_id=created_contact.contact_id
+def test_delete_contact_by_name():
+    create_contact = CreateContact(
+        name=f"Jack Black {test_id}",
+        date_of_birth=None
     )
-    contact_commands.delete_contact_by_id(delete_contact)
+    created_contact = contact_commands.add_contact(create_contact)
+    contact_commands.delete_contact_by_name(created_contact.name)
