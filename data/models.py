@@ -61,11 +61,11 @@ class Note(Base):
     text: Mapped[str] = mapped_column("text", String, nullable=False)
 
     contact: Mapped[Contact] = relationship(secondary="contact_notes", back_populates="notes")
-    tags: Mapped[list[Tag]] = relationship(secondary="note_tags", back_populates="notes")
+    tags: Mapped[list[Tag]] = relationship(secondary="note_tags", back_populates="notes", lazy="selectin")
 
     @override
     def __repr__(self) -> str:
-        return f"Note({self.text[:32]})"
+        return f"Note({self.text[:32]},tags={self.tags})"
 
 
 class Tag(Base):

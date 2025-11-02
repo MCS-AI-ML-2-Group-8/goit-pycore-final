@@ -36,3 +36,13 @@ class EmailAlreadyExists(AlreadyExistsError):
     """
     Raised when e-mail with this address already exists
     """
+
+class NoteNotFound(NotFoundError):
+    """
+    Raised when text note is not found during command execution
+    """
+
+class TagNotFound(NotFoundError):
+    """
+    Raised when tag is not found during tag removal
+    """
