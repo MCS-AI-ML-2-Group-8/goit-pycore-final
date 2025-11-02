@@ -5,11 +5,14 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "fastapi>=0.120.4",
+    "fastapi[standard]>=0.120.4",
     "pydantic>=2.12.3",
     "pytest>=8.4.2",
     "sqlalchemy>=2.0.44",
 ]
+
+[tool.basedpyright]
+reportCallInDefaultInitializer = false
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

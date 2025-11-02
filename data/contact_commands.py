@@ -2,7 +2,7 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from data.abstractions import DomainCommand, DatabaseCommandHandler, DomainException
-from data.models import Contact
+from data.models import Contact, Phone
 
 
 class ContactNotFound(DomainException):
@@ -18,6 +18,7 @@ class ContactAlreadyExists(DomainException):
 
 class CreateContact(DomainCommand):
     name: str
+    phone_number: str
     date_of_birth: date | None
 
 
@@ -33,9 +34,14 @@ class ContactCommands(DatabaseCommandHandler):
             if duplicate:
                 raise ContactAlreadyExists()
 
+            phone = Phone()
+            phone.phone_number = command.phone_number
+
             contact = Contact()
             contact.name = command.name
             contact.date_of_birth = command.date_of_birth
+            contact.phones.append(phone)
+
             session.add(contact)
             session.commit()
             session.refresh(contact)

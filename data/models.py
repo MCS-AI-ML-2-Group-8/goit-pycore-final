@@ -16,10 +16,10 @@ class Contact(Base):
     name: Mapped[str] = mapped_column("name", String(64), nullable=False)
     date_of_birth: Mapped[date | None] = mapped_column("date_of_birth", Date, nullable=True)
 
-    phones: Mapped[list[Phone]] = relationship(back_populates="contact", cascade="all")
-    emails: Mapped[list[Email]] = relationship(back_populates="contact", cascade="all")
-    notes: Mapped[list[Note]] = relationship(secondary="contact_notes", back_populates="contact")
-    tags: Mapped[list[Tag]] = relationship(secondary="contact_tags", back_populates="contacts")
+    phones: Mapped[list[Phone]] = relationship(back_populates="contact", cascade="all", lazy="selectin")
+    emails: Mapped[list[Email]] = relationship(back_populates="contact", cascade="all", lazy="selectin")
+    notes: Mapped[list[Note]] = relationship(secondary="contact_notes", back_populates="contact", lazy="selectin")
+    tags: Mapped[list[Tag]] = relationship(secondary="contact_tags", back_populates="contacts", lazy="selectin")
 
     @override
     def __repr__(self) -> str:
