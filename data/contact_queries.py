@@ -19,12 +19,12 @@ class ContactQueries(DatabaseQueryHandler):
 
     def get_contact_by_id(self, contact_id: int) -> Contact | None:
         with Session(self.engine) as session:
-            query = select(Contact).filter(Contact.contact_id == contact_id)
+            query = select(Contact).where(Contact.contact_id == contact_id)
             contact = session.scalar(query)
             return contact
 
     def get_contact_by_name(self, contact_name: str) -> Contact | None:
         with Session(self.engine) as session:
-            query = select(Contact).filter(Contact.name == contact_name)
+            query = select(Contact).where(Contact.name == contact_name)
             contact = session.scalar(query)
             return contact

@@ -13,7 +13,8 @@ Base.metadata.create_all(engine)
 def test_create_contact():
     create_contact = CreateContact(
         name=f"John Doe {test_id}",
-        date_of_birth=None
+        date_of_birth=None,
+        phone_number="0001112223"
     )
     contact = contact_commands.add_contact(create_contact)
     assert contact.contact_id != 0, "Contact does not have id assigned"
@@ -23,7 +24,8 @@ def test_create_contact():
 def test_create_existing_contact():
     create_contact = CreateContact(
         name="John Doe",
-        date_of_birth=None
+        date_of_birth=None,
+        phone_number="0001112223"
     )
     try:
         _ = contact_commands.add_contact(create_contact)
@@ -35,7 +37,8 @@ def test_create_existing_contact():
 def test_update_contact():
     create_contact = CreateContact(
         name=f"Jane Doe {test_id}",
-        date_of_birth=None
+        date_of_birth=None,
+        phone_number="0001112223"
     )
     created_contact = contact_commands.add_contact(create_contact)
 
@@ -53,7 +56,8 @@ def test_update_contact():
 def test_delete_contact():
     create_contact = CreateContact(
         name=f"Jack Black {test_id}",
-        date_of_birth=None
+        date_of_birth=None,
+        phone_number="0001112223"
     )
     created_contact = contact_commands.add_contact(create_contact)
     contact_commands.delete_contact(created_contact.contact_id)
@@ -61,7 +65,8 @@ def test_delete_contact():
 def test_delete_contact_by_name():
     create_contact = CreateContact(
         name=f"Jack Black {test_id}",
-        date_of_birth=None
+        date_of_birth=None,
+        phone_number="0001112223"
     )
     created_contact = contact_commands.add_contact(create_contact)
     contact_commands.delete_contact_by_name(created_contact.name)

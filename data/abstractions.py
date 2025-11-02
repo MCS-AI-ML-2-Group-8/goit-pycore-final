@@ -19,7 +19,3 @@ class DatabaseCommandHandler(DatabaseAware):
 
 class DomainCommand(BaseModel):
     pass
-
-
-class DomainException(Exception):
-    pass
