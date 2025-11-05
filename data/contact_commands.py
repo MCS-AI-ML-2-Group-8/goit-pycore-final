@@ -1,15 +1,17 @@
 from datetime import date
+from pydantic import Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from data.abstractions import DomainCommand, DatabaseCommandHandler
 from data.exceptions import ContactAlreadyExists, ContactNotFound, TagNotFound
 from data.models import Contact, Phone, Tag
 from data.tag_commands import AddTag, RemoveTag
+from data.validation import phone_number_patter
 
 
 class CreateContact(DomainCommand):
     name: str
-    phone_number: str
+    phone_number: str = Field(..., pattern=phone_number_patter)
     date_of_birth: date | None
 
 
