@@ -6,12 +6,12 @@ from data.abstractions import DomainCommand, DatabaseCommandHandler
 from data.exceptions import ContactAlreadyExists, ContactNotFound, TagNotFound
 from data.models import Contact, Phone, Tag
 from data.tag_commands import AddTag, RemoveTag
-from data.validation import phone_number_patter
+from data.validation import phone_number_pattern
 
 
 class CreateContact(DomainCommand):
     name: str
-    phone_number: str = Field(..., pattern=phone_number_patter)
+    phone_number: str = Field(..., pattern=phone_number_pattern)
     date_of_birth: date | None
 
 
