@@ -1,16 +1,18 @@
+from pydantic import Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from data.abstractions import DomainCommand, DatabaseCommandHandler
 from data.exceptions import ContactNotFound, EmailAlreadyExists, EmailNotFound
 from data.models import Contact, Email
+from data.validation import email_address_pattern
 
 
 class CreateEmail(DomainCommand):
-    email_address: str
+    email_address: str = Field(..., pattern=email_address_pattern)
 
 
 class UpdateEmail(DomainCommand):
-    email_address: str
+    email_address: str = Field(..., pattern=email_address_pattern)
 
 
 class EmailCommands(DatabaseCommandHandler):

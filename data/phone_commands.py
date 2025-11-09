@@ -1,16 +1,18 @@
+from pydantic import Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from data.abstractions import DomainCommand, DatabaseCommandHandler
 from data.exceptions import ContactNotFound, PhoneAlreadyExists, PhoneNotFound
 from data.models import Contact, Phone
+from data.validation import phone_number_pattern
 
 
 class CreatePhone(DomainCommand):
-    phone_number: str
+    phone_number: str = Field(..., pattern=phone_number_pattern)
 
 
 class UpdatePhone(DomainCommand):
-    phone_number: str
+    phone_number: str = Field(..., pattern=phone_number_pattern)
 
 
 class PhoneCommands(DatabaseCommandHandler):
