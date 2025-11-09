@@ -29,6 +29,21 @@ class NoteCommands(DatabaseCommandHandler):
             session.refresh(note)
             return note
 
+    def add_note_for_contact_by_name(self, contact_name: str, command: CreateNote) -> Note:
+        with Session(self.engine) as session:
+            contact = session.scalar(select(Contact).where(Contact.name == contact_name))
+            if not contact:
+                raise ContactNotFound()
+
+            note = Note()
+            note.text = command.text
+
+            contact.notes.append(note)
+            session.add(note)
+            session.commit()
+            session.refresh(note)
+            return note
+
     def add_note(self, command: CreateNote) -> Note:
         with Session(self.engine) as session:
             note = Note()

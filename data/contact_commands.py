@@ -67,6 +67,28 @@ class ContactCommands(DatabaseCommandHandler):
             session.expunge(contact)
             return contact
 
+    def update_contact_by_name(self, contact_name: str, command: UpdateContact) -> Contact:
+        with Session(self.engine) as session:
+            contact = session.scalar(select(Contact).where(Contact.name == contact_name))
+            if not contact:
+                raise ContactNotFound()
+
+            duplicate = session.scalar(
+                select(Contact).where(
+                    Contact.contact_id != contact.contact_id,
+                    Contact.name == command.name
+                )
+            )
+            if duplicate:
+                raise ContactAlreadyExists()
+
+            contact.name = command.name
+            contact.date_of_birth = command.date_of_birth
+            session.commit()
+            session.refresh(contact)
+            session.expunge(contact)
+            return contact
+
     def delete_contact(self, contact_id: int) -> None:
         with Session(self.engine) as session:
             contact = session.get(Contact, contact_id)
@@ -86,7 +108,7 @@ class ContactCommands(DatabaseCommandHandler):
             session.delete(contact)
             session.commit()
 
-    def add_tag_to_note(self, contact_id: int, command: AddTag) -> None:
+    def add_tag_to_contact(self, contact_id: int, command: AddTag) -> None:
         with Session(self.engine) as session:
             contact = session.get(Contact, contact_id)
             if not contact:
@@ -105,9 +127,42 @@ class ContactCommands(DatabaseCommandHandler):
             session.add(contact)
             session.commit()
 
-    def remove_tag_to_note(self, contact_id: int, command: RemoveTag) -> None:
+    def add_tag_to_contact_by_name(self, contact_name: str, command: AddTag) -> None:
+        with Session(self.engine) as session:
+            contact = session.scalar(select(Contact).where(Contact.name == contact_name))
+            if not contact:
+                raise ContactNotFound()
+
+            tag = session.scalar(select(Tag).where(Tag.label == command.label))
+            if not tag:
+                tag = Tag()
+                tag.label = command.label
+                session.add(tag)
+
+            if tag in contact.tags:
+                return # already added
+
+            contact.tags.append(tag)
+            session.add(contact)
+            session.commit()
+
+    def remove_tag_from_contact(self, contact_id: int, command: RemoveTag) -> None:
         with Session(self.engine) as session:
             contact = session.get(Contact, contact_id)
+            if not contact:
+                raise ContactNotFound()
+
+            tag = session.scalar(select(Tag).where(Tag.label == command.label))
+            if not tag:
+                raise TagNotFound()
+
+            contact.tags.remove(tag)
+            session.add(contact)
+            session.commit()
+
+    def remove_tag_from_contact_by_name(self, contact_name: str, command: RemoveTag) -> None:
+        with Session(self.engine) as session:
+            contact = session.scalar(select(Contact).where(Contact.name == contact_name))
             if not contact:
                 raise ContactNotFound()
 

@@ -3,6 +3,9 @@ from cli.messages import print_assistant_message, print_status_message
 from cli.abstractions import CommandHandler, Result
 from cli.contact_commands import ContactCommandHandlers
 from cli.phone_commands import PhoneCommandHandlers
+from cli.email_commands import EmailCommandHandlers
+from cli.birthday_commands import BirthdayCommandHandlers
+from cli.note_commands import NoteCommandHandlers
 from cli.pipeline import execute_handler
 
 def parse_input(user_input: str) -> tuple[str, list[str]]:
@@ -16,7 +19,10 @@ def parse_input(user_input: str) -> tuple[str, list[str]]:
 def launch_main_loop():
     handlers: dict[str, CommandHandler] = {
         **ContactCommandHandlers(database_engine).get_commands(),
-        **PhoneCommandHandlers(database_engine).get_commands()
+        **PhoneCommandHandlers(database_engine).get_commands(),
+        **EmailCommandHandlers(database_engine).get_commands(),
+        **BirthdayCommandHandlers(database_engine).get_commands(),
+        **NoteCommandHandlers(database_engine).get_commands()
     }
 
     commands = ["hello", *handlers.keys(), "close", "exit"]
