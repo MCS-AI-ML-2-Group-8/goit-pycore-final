@@ -1,7 +1,9 @@
+from pydantic import ValidationError
 from sqlalchemy import Engine
 from cli.abstractions import Result
 from data.contact_commands import ContactCommands, CreateContact
 from data.contact_queries import ContactQueries
+from data.exceptions import ContactAlreadyExists, PhoneAlreadyExists
 from data.models import Contact
 
 
@@ -31,14 +33,24 @@ class ContactCommandHandlers:
             return Result.ERROR, f"ERROR: 'add' command accepts two arguments: name and phone number. Provided {len(args)} value(s)"
 
         name, phone = args
-        _ = self.commands.add_contact(
-            CreateContact(
-                name=name,
-                phone_number=phone,
-                date_of_birth=None
+        try:
+            _ = self.commands.add_contact(
+                CreateContact(
+                    name=name,
+                    phone_number=phone,
+                    date_of_birth=None
+                )
             )
-        )
-        return Result.SUCCESS, "Contact created."
+            return Result.SUCCESS, "Contact created."\
+
+        except ValidationError:
+            return Result.WARNING, f"Phone number '{phone}' has invalid format"
+
+        except ContactAlreadyExists:
+            return Result.WARNING, f"Contact '{name}' already exists"
+
+        except PhoneAlreadyExists:
+            return Result.WARNING, f"Phone number '{phone}' already exists"
 
 
     def get_all(self, _: list[str]) -> tuple[Result, str]:

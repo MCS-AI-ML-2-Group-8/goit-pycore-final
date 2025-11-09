@@ -3,7 +3,7 @@ from pydantic import Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from data.abstractions import DomainCommand, DatabaseCommandHandler
-from data.exceptions import ContactAlreadyExists, ContactNotFound, TagNotFound
+from data.exceptions import ContactAlreadyExists, ContactNotFound, PhoneAlreadyExists, TagNotFound
 from data.models import Contact, Phone, Tag
 from data.tag_commands import AddTag, RemoveTag
 from data.validation import phone_number_pattern
@@ -23,11 +23,13 @@ class UpdateContact(DomainCommand):
 class ContactCommands(DatabaseCommandHandler):
     def add_contact(self, command: CreateContact) -> Contact:
         with Session(self.engine) as session:
-            duplicate = session.scalar(
-                select(Contact).where(Contact.name == command.name)
-            )
+            duplicate = session.scalar(select(Contact).where(Contact.name == command.name))
             if duplicate:
                 raise ContactAlreadyExists()
+
+            duplicate = session.scalar(select(Phone).where(Phone.phone_number == command.phone_number))
+            if duplicate:
+                raise PhoneAlreadyExists()
 
             phone = Phone()
             phone.phone_number = command.phone_number
