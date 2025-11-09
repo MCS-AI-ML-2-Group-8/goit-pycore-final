@@ -3,6 +3,7 @@ from cli.messages import print_assistant_message, print_status_message
 from cli.abstractions import CommandHandler, Result
 from cli.contact_commands import ContactCommandHandlers
 from cli.phone_commands import PhoneCommandHandlers
+from cli.pipeline import execute_handler
 
 def parse_input(user_input: str) -> tuple[str, list[str]]:
     if not user_input:
@@ -40,7 +41,7 @@ def launch_main_loop():
 
         elif command in handlers:
             handler = handlers[command]
-            status, message = handler(args)
+            status, message = execute_handler(handler, args)
             print_status_message(status, message)
 
         else:

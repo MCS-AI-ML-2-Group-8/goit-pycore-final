@@ -11,8 +11,8 @@ class Result(Enum):
     WARNING = 2
     ERROR = 3
 
-
+CommandResult = tuple[Result, str]
 CommandHandler = Callable[
     [list[str]],
-    tuple[Result, str]
+    CommandResult
 ]
