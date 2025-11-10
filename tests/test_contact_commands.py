@@ -39,7 +39,7 @@ def test_update_contact():
         CreateContact(
             name="Jane Doe",
             date_of_birth=None,
-            phone_number="0001112223"
+            phone_number="0001112227"
         )
     )
     command = UpdateContact(
@@ -57,7 +57,7 @@ def test_delete_contact():
         CreateContact(
             name="Jack Black",
             date_of_birth=None,
-            phone_number="0001112223"
+            phone_number="0001112225"
         )
     )
     commands.delete_contact(created_contact.contact_id)
@@ -67,7 +67,7 @@ def test_delete_contact_by_name():
         CreateContact(
             name="Jack Black",
             date_of_birth=None,
-            phone_number="0001112223"
+            phone_number="0001112229"
         )
     )
     commands.delete_contact_by_name(created_contact.name)

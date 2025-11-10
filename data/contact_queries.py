@@ -28,3 +28,10 @@ class ContactQueries(DatabaseQueryHandler):
             query = select(Contact).where(Contact.name == contact_name)
             contact = session.scalar(query)
             return contact
+
+    def get_contacts_with_birthdays_in_days(self, days: int) -> list[Contact]:
+        """
+        Get contacts with birthdays in the next N days.
+        TODO: Implement birthday range calculation
+        """
+        raise NotImplementedError("Birthday search not yet implemented")
