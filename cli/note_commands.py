@@ -119,11 +119,7 @@ class NoteCommandHandlers:
 
         fragment, new_text = args
         try:
-            note = self.queries.find_note_by_text_fragment(fragment)
-            if not note:
-                raise NoteNotFound()
-
-            _ = self.commands.update_note(note.note_id, UpdateNote(text=new_text))
+            _ = self.commands.update_note_by_fragment(fragment, UpdateNote(text=new_text))
             return Result.SUCCESS, "Note updated."
 
         except NoteNotFound:
@@ -139,11 +135,7 @@ class NoteCommandHandlers:
 
         fragment = args[0]
         try:
-            note = self.queries.find_note_by_text_fragment(fragment)
-            if not note:
-                raise NoteNotFound()
-
-            self.commands.delete_note(note.note_id)
+            self.commands.delete_note_from_fragment(fragment)
             return Result.SUCCESS, "Note deleted."
 
         except NoteNotFound:
@@ -159,11 +151,7 @@ class NoteCommandHandlers:
 
         fragment, tag = args
         try:
-            note = self.queries.find_note_by_text_fragment(fragment)
-            if not note:
-                raise NoteNotFound()
-
-            self.commands.add_tag_to_note(note.note_id, AddTag(label=tag))
+            self.commands.add_tag_to_note_by_fragment(fragment, AddTag(label=tag))
             return Result.SUCCESS, "Tag added to note."
 
         except NoteNotFound:
@@ -179,11 +167,7 @@ class NoteCommandHandlers:
 
         fragment, tag = args
         try:
-            note = self.queries.find_note_by_text_fragment(fragment)
-            if not note:
-                raise NoteNotFound()
-
-            self.commands.remove_tag_to_note(note.note_id, RemoveTag(label=tag))
+            self.commands.remove_tag_from_note_by_fragment(fragment, RemoveTag(label=tag))
             return Result.SUCCESS, "Tag removed from note."
 
         except NoteNotFound:

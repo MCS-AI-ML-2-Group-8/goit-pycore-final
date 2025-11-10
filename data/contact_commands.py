@@ -152,12 +152,14 @@ class ContactCommands(DatabaseCommandHandler):
             if not contact:
                 raise ContactNotFound()
 
-            tag = session.scalar(select(Tag).where(Tag.label == command.label))
+            tag = session.scalar(select(Tag).where(
+                Tag.contacts.has(Contact.contact_id == contact.contact_id),
+                Tag.label == command.label))
+
             if not tag:
                 raise TagNotFound()
 
             contact.tags.remove(tag)
-            session.add(contact)
             session.commit()
 
     def remove_tag_from_contact_by_name(self, contact_name: str, command: RemoveTag) -> None:
@@ -166,10 +168,12 @@ class ContactCommands(DatabaseCommandHandler):
             if not contact:
                 raise ContactNotFound()
 
-            tag = session.scalar(select(Tag).where(Tag.label == command.label))
+            tag = session.scalar(select(Tag).where(
+                Tag.contacts.has(Contact.contact_id == contact.contact_id),
+                Tag.label == command.label))
+
             if not tag:
                 raise TagNotFound()
 
             contact.tags.remove(tag)
-            session.add(contact)
             session.commit()

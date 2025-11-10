@@ -1,6 +1,5 @@
 from sqlalchemy import Engine
 from pydantic import ValidationError
-from cli.database import database_engine
 from cli.abstractions import Result
 from data.exceptions import ContactNotFound, PhoneAlreadyExists, PhoneNotFound
 from data.phone_commands import PhoneCommands, CreatePhone, UpdatePhone
@@ -37,7 +36,7 @@ class PhoneCommandHandlers:
 
         name = args[0]
         phones = self.queries.get_contact_phones_by_name(name)
-        
+
         if len(phones) == 0:
             return Result.WARNING, f"Contact '{name}' has no phone numbers or contact not found"
 
