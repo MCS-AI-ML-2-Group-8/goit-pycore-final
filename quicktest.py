@@ -31,7 +31,7 @@ commands.add_tag_to_note(updated_note.note_id, AddTag(label="hello"))
 commands.add_tag_to_note(updated_note.note_id, AddTag(label="big"))
 commands.add_tag_to_note(updated_note.note_id, AddTag(label="world"))
 commands.add_tag_to_note(updated_note.note_id, AddTag(label="world"))
-commands.remove_tag_to_note(updated_note.note_id, RemoveTag(label="big"))
+commands.remove_tag_from_note(updated_note.note_id, RemoveTag(label="big"))
 
 print(contact)
 
