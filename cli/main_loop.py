@@ -4,6 +4,9 @@ from cli.abstractions import CommandHandler, Result
 from cli.contact_commands import ContactCommandHandlers
 from cli.phone_commands import PhoneCommandHandlers
 from cli.pipeline import execute_handler
+from prompt_toolkit import prompt
+from prompt_toolkit.key_binding import KeyBindings
+from cli.completion import build_completer, build_auto_suggest
 
 def parse_input(user_input: str) -> tuple[str, list[str]]:
     if not user_input:
@@ -21,10 +24,23 @@ def launch_main_loop():
 
     commands = ["hello", *handlers.keys(), "close", "exit"]
 
+    # prompt_toolkit: комплитер + автосуггест
+    completer = build_completer(database_engine, commands)
+    auto_suggest = build_auto_suggest(database_engine, commands)
+
+    # Key bindings (опционально): Enter — принять строку, Tab — меню, Right — принять inline-хвост
+    kb = KeyBindings()
+
     print_assistant_message("Welcome to the assistant bot!")
     while True:
         try:
-            user_input = input("Enter a command: ")
+            user_input = prompt(
+                "Enter a command: ",
+                completer=completer,
+                complete_while_typing=True,
+                auto_suggest=auto_suggest,
+                key_bindings=kb
+            )
 
         except KeyboardInterrupt:
             print("Keyboard interrupt")
