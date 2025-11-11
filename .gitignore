@@ -11,3 +11,6 @@ wheels/
 
 # Databases
 *.db
+
+# Vercel
+.vercel
