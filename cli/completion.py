@@ -1,12 +1,16 @@
 from __future__ import annotations
 from typing import Iterable, Optional, List
+import shlex
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.auto_suggest import AutoSuggest, Suggestion
 from prompt_toolkit.document import Document
 from sqlalchemy import Engine
 
 from data.contact_queries import ContactQueries
-from data.phone_queries import PhoneQueries
+try:
+    from data.note_queries import NoteQueries as _NoteQueries
+except Exception:
+    _NoteQueries = None
 
 BUILTIN_COMMANDS = [
     "hello", "exit", "close",
@@ -20,10 +24,32 @@ BUILTIN_COMMANDS = [
     # Birthdays
     "add-birthday", "remove-birthday", "get-birthdays",
     # Notes (global)
-    "get-notes", "add-note", "edit-note", "delete-note", "add-tag-to-note", "remove-tag-from-note",
+    "get-notes", "add-note", "edit-note", "delete-note",
+    "add-tag-to-note", "remove-tag-from-note",
+    # Notes (contact-scoped)
+    "add-note-to-contact",
 ]
 
-# ----------------------- Провайдеры данных -----------------------
+def _split_words(s: str) -> list[str]:
+    """Шелл-разбор для корректной работы с кавычками.
+    Фоллбек на .split() если кавычки не закрыты."""
+    if not s:
+        return []
+    try:
+        return shlex.split(s, posix=True)
+    except ValueError:
+        return s.split()
+
+def _tag_label(tag_obj) -> str | None:
+    if isinstance(tag_obj, str):
+        return tag_obj
+    if hasattr(tag_obj, "label") and getattr(tag_obj, "label"):
+        return str(getattr(tag_obj, "label"))
+    return None
+
+def _note_text(note_obj) -> str | None:
+    txt = getattr(note_obj, "text", None)
+    return str(txt) if txt else None
 
 def _fetch_contact_names(engine: Engine) -> list[str]:
     try:
@@ -39,10 +65,9 @@ def _fetch_contact_phones(engine: Engine, contact_name: str) -> list[str]:
             return []
         phones: list[str] = []
         for p in getattr(contact, "phones", []) or []:
-            if isinstance(p, str):
-                phones.append(p)
-            elif hasattr(p, "phone_number"):
-                phones.append(getattr(p, "phone_number"))
+            num = getattr(p, "phone_number", p)
+            if isinstance(num, str) and num:
+                phones.append(num)
         return sorted(set(phones))
     except Exception:
         return []
@@ -54,45 +79,62 @@ def _fetch_contact_emails(engine: Engine, contact_name: str) -> list[str]:
             return []
         emails: list[str] = []
         for e in getattr(contact, "emails", []) or []:
-            if isinstance(e, str):
-                emails.append(e)
-            elif hasattr(e, "email"):
-                emails.append(getattr(e, "email"))
+            addr = getattr(e, "email_address", e)
+            if isinstance(addr, str) and addr:
+                emails.append(addr)
         return sorted(set(emails))
     except Exception:
         return []
 
 def _fetch_all_tags(engine: Engine) -> list[str]:
     tags: set[str] = set()
+
     try:
         cq = ContactQueries(engine)
         for c in cq.get_contacts():
-            for t in getattr(c, "tags", []) or []:
-                if isinstance(t, str):
-                    tags.add(t)
-                elif hasattr(t, "name"):
-                    tags.add(getattr(t, "name"))
+            for t in (getattr(c, "tags", None) or []):
+                lab = _tag_label(t)
+                if lab:
+                    tags.add(lab)
     except Exception:
         pass
-    # Если позже появится DAL для заметок — можно сюда добавить сбор тегов заметок.
+
+    try:
+        if _NoteQueries is not None:
+            nq = _NoteQueries(engine)
+            for n in nq.get_notes():
+                for t in (getattr(n, "tags", None) or []):
+                    lab = _tag_label(t)
+                    if lab:
+                        tags.add(lab)
+    except Exception:
+        pass
+
     return sorted(tags)
 
 def _fetch_notes_texts(engine: Engine) -> list[str]:
-    # Если у тебя нет DAL для заметок — оставляем пусто (меню просто не будет появляться).
-    # Когда появится NoteQueries, верни список текстов заметок.
-    return []
+    if _NoteQueries is None:
+        return []
+    texts: list[str] = []
+    try:
+        nq = _NoteQueries(engine)
+        for n in nq.get_notes():
+            txt = _note_text(n)
+            if txt:
+                texts.append(txt)
+    except Exception:
+        pass
+    return texts
 
 def _prefix_match(items: Iterable[str], prefix: str) -> list[str]:
     p = (prefix or "").lower()
     return [x for x in items if x.lower().startswith(p)]
 
-# ----------------------- Правила по аргументам -----------------------
-# Позиции считаются с 1 после команды.
 COMPLETION_RULES: dict[str, List[str]] = {
     # Contacts
     "get-contacts":                 ["tag?"                 ],
     "get-contact":                  ["name!"                ],
-    "add-contact":                  ["free!"                ],
+    "add-contact":                  ["free!", "phone-new!"  ],
     "edit-contact":                 ["name!", "free!"       ],
     "delete-contact":               ["name!"                ],
     "add-tag-to-contact":           ["name!", "tag!"        ],
@@ -101,15 +143,15 @@ COMPLETION_RULES: dict[str, List[str]] = {
 
     # Phones
     "get-phones":                   ["name!"                ],
-    "add-phone":                    ["name!", "free!"       ],
-    "edit-phone":                   ["name!", "phone(name)!", "free!" ],
-    "delete-phone":                 ["name!", "phone(name)!"          ],
+    "add-phone":                    ["name!", "phone-new!"  ],
+    "edit-phone":                   ["name!", "phone(name)!"],
+    "delete-phone":                 ["name!", "phone(name)!" ],
 
     # Emails
     "get-emails":                   ["name!"                ],
     "add-email":                    ["name!", "free!"       ],
     "edit-email":                   ["name!", "email(name)!", "free!" ],
-    "delete-email":                 ["name!", "email(name)!"          ],
+    "delete-email":                 ["name!", "email(name)!" ],
 
     # Birthdays
     "add-birthday":                 ["name!", "date!"       ],
@@ -123,26 +165,27 @@ COMPLETION_RULES: dict[str, List[str]] = {
     "delete-note":                  ["note-fragment!"       ],
     "add-tag-to-note":              ["note-fragment!", "tag!" ],
     "remove-tag-from-note":         ["note-fragment!", "tag!" ],
+    # Notes (contact-scoped)
+    "add-note-to-contact":          ["name!", "free!", "tag!" ],
 }
 
-# ----------------------- AutoSuggest -----------------------
 
 class CLIAutoSuggest(AutoSuggest):
     def __init__(self, get_candidates):
-        # get_candidates(text, cursor_pos, word_index, current_prefix) -> list[str]
         self.get_candidates = get_candidates
 
     def get_suggestion(self, buffer, document: Document) -> Optional[Suggestion]:
         text = document.text
         before = document.current_line_before_cursor
-        parts = before.split()
-        idx_in_line = len(parts) - 1 if before and not before.endswith(" ") else len(parts)
+
+        parts = _split_words(before)
+        at_word_boundary = before.endswith(" ")
+
+        idx_in_line = (len(parts)) if at_word_boundary else (len(parts) - 1)
         if idx_in_line < 0:
             return None
 
-        current_prefix = ""
-        if before and not before.endswith(" "):
-            current_prefix = parts[-1]
+        current_prefix = "" if at_word_boundary else (parts[-1] if parts else "")
 
         cands = self.get_candidates(text, document.cursor_position, idx_in_line, current_prefix)
         if not cands:
@@ -159,7 +202,6 @@ class CLIAutoSuggest(AutoSuggest):
         remainder = only[len(current_prefix):]
         return Suggestion(remainder)
 
-# ----------------------- Completer -----------------------
 
 class CLICompleter(Completer):
     def __init__(self, engine: Engine, commands: list[str]):
@@ -167,28 +209,27 @@ class CLICompleter(Completer):
         self.commands = sorted(set(commands or BUILTIN_COMMANDS))
 
     def get_completions(self, document: Document, complete_event) -> Iterable[Completion]:
-        text = document.text_before_cursor
-        if not text:
-            for cmd in self.commands:
-                yield Completion(cmd, start_position=0, display=cmd)
-            return
+        line = document.text_before_cursor
 
-        line = text
-        parts = line.split()
+        parts = _split_words(line)
         at_word_boundary = line.endswith(" ")
-        word_index = len(parts) if at_word_boundary else len(parts) - 1
+
+        word_index = (len(parts)) if at_word_boundary else (len(parts) - 1)
         current_prefix = "" if at_word_boundary else (parts[-1] if parts else "")
 
         def complete_words(words: Iterable[str]):
             for w in sorted(set(words)):
                 yield Completion(w, start_position=-len(current_prefix), display=w)
 
-        # 0 — команда
+        if not line:
+            for cmd in self.commands:
+                yield Completion(cmd, start_position=0, display=cmd)
+            return
+
         if word_index == 0:
             yield from complete_words(_prefix_match(self.commands, current_prefix))
             return
 
-        # дальше — по правилам команды
         first = parts[0].lower() if parts else ""
         if not first:
             return
@@ -197,13 +238,12 @@ class CLICompleter(Completer):
         if not rules:
             return
 
-        arg_pos = word_index  # 1..N
+        arg_pos = word_index
         if arg_pos <= 0 or arg_pos > len(rules):
             return
 
         rule = rules[arg_pos - 1].strip().lower()
 
-        # Провайдеры по правилу
         if rule.startswith("name"):
             names = _fetch_contact_names(self.engine)
             yield from complete_words(_prefix_match(names, current_prefix))
@@ -239,10 +279,12 @@ class CLICompleter(Completer):
             yield from complete_words(_prefix_match(["YYYY-MM-DD"], current_prefix))
             return
 
-        # free / unknown — ничего не подсказываем
-        return
+        if rule.startswith("phone-new"):
+            yield from complete_words(_prefix_match(["0501234567", "0931234567", "0123456789"], current_prefix))
+            return
 
-# ----------------------- Фабрики -----------------------
+        # free — ничего не подсказываем
+        return
 
 def build_completer(engine: Engine, all_commands: list[str]) -> CLICompleter:
     return CLICompleter(engine, all_commands)
@@ -251,18 +293,16 @@ def build_auto_suggest(engine: Engine, all_commands: list[str]) -> CLIAutoSugges
     completer = CLICompleter(engine, all_commands)
 
     def _get_candidates(full_text: str, cursor_pos: int, word_index: int, prefix: str) -> list[str]:
-        # 0 — команды
         if word_index == 0:
             return list(completer.commands)
 
-        # Аргументы — тот же провайдинг, что и в Completer (без форматирования)
-        parts = full_text[:cursor_pos].split()
+        parts = _split_words(full_text[:cursor_pos])
         first = parts[0].lower() if parts else ""
         rules = COMPLETION_RULES.get(first)
         if not rules:
             return []
 
-        arg_pos = word_index  # 1..N
+        arg_pos = word_index
         if arg_pos <= 0 or arg_pos > len(rules):
             return []
 
@@ -284,7 +324,9 @@ def build_auto_suggest(engine: Engine, all_commands: list[str]) -> CLIAutoSugges
             return ["3", "7", "14", "30"]
         if rule.startswith("date"):
             return ["YYYY-MM-DD"]
-        # free / unknown
+        if rule.startswith("phone-new"):
+            return ["0501234567", "0931234567", "0123456789"]
+        # free 
         return []
 
     return CLIAutoSuggest(_get_candidates)

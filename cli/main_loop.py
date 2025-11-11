@@ -9,14 +9,25 @@ from cli.note_commands import NoteCommandHandlers
 from cli.pipeline import execute_handler
 from prompt_toolkit import prompt
 from prompt_toolkit.key_binding import KeyBindings
+import shlex
 from cli.completion import build_completer, build_auto_suggest
 
+# def parse_input(user_input: str) -> tuple[str, list[str]]:
+#     if not user_input:
+#         return "", []
+
+#     cmd, *args = user_input.split()
+#     cmd = cmd.strip().lower()
+#     return cmd, args
 def parse_input(user_input: str) -> tuple[str, list[str]]:
     if not user_input:
         return "", []
-
-    cmd, *args = user_input.split()
-    cmd = cmd.strip().lower()
+    try:
+        parts = shlex.split(user_input, posix=True)
+    except ValueError:
+        parts = user_input.split()
+    cmd = (parts[0].strip().lower() if parts else "")
+    args = parts[1:] if len(parts) > 1 else []
     return cmd, args
 
 def launch_main_loop():
