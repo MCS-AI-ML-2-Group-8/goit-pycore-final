@@ -19,4 +19,10 @@ def get_notes(tag: str | None = None) -> list[NoteModel]:
 
     return list(map(mappers.map_note, notes))
 
-
+#  POST /notes -> add a note by contact ID
+@router.post("/{contact_id}")
+def add_note_to_contact(contact_id: int, command: CreateNote) -> NoteModel:
+    commands = NoteCommands(database_engine)
+    note = commands.add_note_for_contact(contact_id, command)
+    
+    return mappers.map_note(note)
