@@ -121,11 +121,13 @@ class ContactCommands(DatabaseCommandHandler):
                 session.add(tag)
 
             if tag in contact.tags:
-                return # already added
+                return contact # return the contact 
 
             contact.tags.append(tag)
             session.add(contact)
             session.commit()
+            session.refresh(contact) # refresh contact 
+            return contact # return the contact 
 
     def add_tag_to_contact_by_name(self, contact_name: str, command: AddTag) -> None:
         with Session(self.engine) as session:
