@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from data.contact_commands import ContactCommands, CreateContact, UpdateContact
 from data.note_commands import NoteCommands, CreateNote
-from data.phone_commands import PhoneCommands, CreatePhone
+from data.phone_commands import PhoneCommands, CreatePhone, UpdatePhone
 from data.tag_commands import AddTag, RemoveTag
 from data.contact_queries import ContactQueries
 from data.note_queries import NoteQueries
@@ -129,7 +129,7 @@ def delete_tag_from_contact(contact_id: int, command: RemoveTag) -> None:
 def get_phones_for_contact(contact_id: int) -> list[PhoneModel]:
     contact_queries = ContactQueries(database_engine)
     contact = contact_queries.get_contact_by_id(contact_id)
-    print(contact)
+
     if contact is None:
         raise HTTPException(404, {"message": "Contact not found"})
         
@@ -148,3 +148,38 @@ def create_phone(contact_id: int, command: CreatePhone):
         raise HTTPException(404, {"message": "Contact not found."})
     except PhoneAlreadyExists:
         raise HTTPException(400, {"message": "Phone already exist."})
+    
+# PUT /contacts/{contact_id}/phones/{phone_id} -> update a phone for contact
+@router.put("/{contact_id}/phones/{phone_id}")
+def update_phone(contact_id: int, phone_id: int,  command: UpdatePhone):
+    contact_queries = ContactQueries(database_engine)
+    contact = contact_queries.get_contact_by_id(contact_id)
+
+    if contact is None:
+        raise HTTPException(404, {"message": "Contact not found"})
+    
+    try:
+        commands = PhoneCommands(database_engine)
+        phone = commands.update_phone(phone_id, command)
+        return mappers.map_phone(phone)
+    except PhoneNotFound:
+        raise HTTPException(404, {"message": "Phone not found."})
+    except PhoneAlreadyExists:
+        raise HTTPException(400, {"message": "Phone already exist."})
+    
+    
+# DELETE /contacts/{contact_id}/phones/{phone_id} -> Delete a phone
+@router.delete("/{contact_id}/phones/{phone_id}")
+def delete_phone(contact_id: int, phone_id: int) -> None:
+    contact_queries = ContactQueries(database_engine)
+    contact = contact_queries.get_contact_by_id(contact_id)
+
+    if contact is None:
+        raise HTTPException(404, {"message": "Contact not found"})
+    
+    try:
+        commands = PhoneCommands(database_engine)
+        commands.delete_phone(phone_id)
+        return {"message": "Phone successfully deleted."}
+    except PhoneNotFound:
+        raise HTTPException(404, {"message": "Phone not found"})
