@@ -2,9 +2,9 @@ from fastapi import APIRouter, HTTPException
 from data.tag_commands import AddTag, RemoveTag
 from data.note_commands import NoteCommands, CreateNote, UpdateNote
 from data.note_queries import NoteQueries
-from data.exceptions import ContactAlreadyExists
+from data.exceptions import  NoteNotFound
 from api.database import database_engine
-from api.models import ContactModel, NoteModel
+from api.models import  NoteModel
 import api.mappers as mappers
 
 router = APIRouter(prefix="/notes")
@@ -44,3 +44,15 @@ def add_tag_to_note(note_id: int, command: AddTag) -> NoteModel:
     note = commands.add_tag_to_note(note_id, command)
     # note is None here 
     return mappers.map_note(note)
+
+
+# DELETE /notes/{note_id} -> delete a note by its ID
+@router.delete("/{note_id}")
+def delete_note(note_id: int):
+    commands = NoteCommands(database_engine)
+    try:
+        commands.delete_note(note_id)
+        return {"message": "Note deleted successfully"}
+    except NoteNotFound:
+        raise HTTPException(404, {"message": "Note not found"})
+    
