@@ -4,7 +4,12 @@ from data.note_commands import NoteCommands, CreateNote
 from data.tag_commands import AddTag, RemoveTag
 from data.contact_queries import ContactQueries
 from data.note_queries import NoteQueries
-from data.exceptions import ContactAlreadyExists, ContactNotFound, TagNotFound
+from data.exceptions import (
+    ContactAlreadyExists,
+    ContactNotFound,
+    TagNotFound,
+    PhoneAlreadyExists,
+)
 from api.database import database_engine
 from api.models import ContactModel, NoteModel
 import api.mappers as mappers
@@ -53,17 +58,22 @@ def add_contact(command: CreateContact) -> ContactModel:
         return mappers.map_contact(contact)
     except ContactAlreadyExists:
         raise HTTPException(400, {"message": "Contact already exists"})
-    
+    except PhoneAlreadyExists:
+        raise HTTPException(400, {"message": "Phone already exists"})
 
-# POST /contacts/{contact_id}/notes -> create a not for a contact 
+
+# POST /contacts/{contact_id}/notes -> create a not for a contact
 @router.post("/{contact_id}/notes")
 def add_note_to_contact(contact_id: int, command: CreateNote):
-    commands = NoteCommands(database_engine)
-    note = commands.add_note_for_contact(contact_id, command)
-    
-    return mappers.map_note(note)
+    try:
+        commands = NoteCommands(database_engine)
+        note = commands.add_note_for_contact(contact_id, command)
+        return mappers.map_note(note)
+    except ContactNotFound:
+        raise HTTPException(404, {"message": "Contact not found."})
 
-# POST /contacts/{contact_id}/tags-> add a tag for a contact 
+
+# POST /contacts/{contact_id}/tags-> add a tag for a contact
 @router.post("/{contact_id}/tags")
 def add_tag_to_contact(contact_id: int, command: AddTag):
     try:
@@ -72,28 +82,30 @@ def add_tag_to_contact(contact_id: int, command: AddTag):
         return mappers.map_contact(contact)
     except ContactNotFound:
         raise HTTPException(404, {"message": "Contact not found."})
-    
 
 
 # PUT /contacts/{contact_id} -> Update a contact
-@router.put("/{id}")
-def update_contact(id: int, command: UpdateContact) -> ContactModel:
-    commands = ContactCommands(database_engine)
-    contact = commands.update_contact(id, command)
-    return mappers.map_contact(contact)
+@router.put("/{contact_id}")
+def update_contact(contact_id: int, command: UpdateContact) -> ContactModel:
+    try:
+        commands = ContactCommands(database_engine)
+        contact = commands.update_contact(contact_id, command)
+        return mappers.map_contact(contact)
+    except ContactNotFound:
+        raise HTTPException(404, {"message": "Contact not found."})
 
 
 # DELETE /contacts/{contact_id} -> Delete a contact
-@router.delete("/{id}")
-def delete_contact(id: int) -> None:
+@router.delete("/{contact_id}")
+def delete_contact(contact_id: int) -> None:
     try:
         commands = ContactCommands(database_engine)
-        commands.delete_contact(id)
+        commands.delete_contact(contact_id)
         return {"message": "Contact successfully deleted."}
     except ContactNotFound:
         raise HTTPException(404, {"message": "Contact not found"})
-    
-    
+
+
 # DELETE /contacts/{contact_id}/tags -> delete tag from contact
 @router.delete("/{contact_id}/tags")
 def delete_tag_from_contact(contact_id: int, command: RemoveTag) -> None:
@@ -105,4 +117,3 @@ def delete_tag_from_contact(contact_id: int, command: RemoveTag) -> None:
         raise HTTPException(404, {"message": "Contact not found"})
     except TagNotFound:
         raise HTTPException(404, {"message": "Tag not found"})
-    
