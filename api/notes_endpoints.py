@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from data.tag_commands import AddTag, RemoveTag
 from data.note_commands import NoteCommands, CreateNote
 from data.note_queries import NoteQueries
 from data.exceptions import ContactAlreadyExists
@@ -25,4 +26,13 @@ def add_note_to_contact(contact_id: int, command: CreateNote) -> NoteModel:
     commands = NoteCommands(database_engine)
     note = commands.add_note_for_contact(contact_id, command)
     
+    return mappers.map_note(note)
+
+
+# POST /notes/{note_id}/tags/{tag} -> add a tag to the note
+@router.post("/{note_id}/tags")
+def add_tag_to_note(note_id: int, command: AddTag) -> NoteModel:
+    commands = NoteCommands(database_engine)
+    note = commands.add_tag_to_note(note_id, command)
+    # note is None here 
     return mappers.map_note(note)
