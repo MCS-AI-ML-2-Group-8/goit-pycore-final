@@ -48,7 +48,7 @@ class ContactQueries(DatabaseQueryHandler):
 
         def get_this_date_at_year(dob: date, year: int) -> date:
             if dob.month == 2 and dob.day == 29 and not calendar.isleap(year):
-                return date(year, 2, 28)
+                return date(year, 3, 1)
             return date(year, dob.month, dob.day)
 
         def get_next_celebration_day(dob: date) -> date:
