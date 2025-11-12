@@ -4,14 +4,16 @@ from data.note_commands import NoteCommands, CreateNote
 from data.tag_commands import AddTag, RemoveTag
 from data.contact_queries import ContactQueries
 from data.note_queries import NoteQueries
+from data.phone_queries import PhoneQueries
 from data.exceptions import (
     ContactAlreadyExists,
     ContactNotFound,
     TagNotFound,
     PhoneAlreadyExists,
+    PhoneNotFound
 )
 from api.database import database_engine
-from api.models import ContactModel, NoteModel
+from api.models import ContactModel, NoteModel, PhoneModel, EmailModel
 import api.mappers as mappers
 
 router = APIRouter(prefix="/contacts")
@@ -117,3 +119,19 @@ def delete_tag_from_contact(contact_id: int, command: RemoveTag) -> None:
         raise HTTPException(404, {"message": "Contact not found"})
     except TagNotFound:
         raise HTTPException(404, {"message": "Tag not found"})
+
+
+# PHOHES Endpoints
+
+# GET /contacts/{contact_id}/phones ->  get phones by contact ID
+@router.get("/{contact_id}/phones")
+def get_phones_for_contact(contact_id: int) -> list[PhoneModel]:
+    contact_queries = ContactQueries(database_engine)
+    contact = contact_queries.get_contact_by_id(contact_id)
+    print(contact)
+    if contact is None:
+        raise HTTPException(404, {"message": "Contact not found"})
+        
+    queries = PhoneQueries(database_engine)
+    phones = queries.get_contact_phones(contact_id)
+    return list(map(mappers.map_phone, phones))
