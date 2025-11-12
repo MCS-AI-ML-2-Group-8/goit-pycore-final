@@ -155,7 +155,7 @@ class ContactCommands(DatabaseCommandHandler):
                 raise ContactNotFound()
 
             tag = session.scalar(select(Tag).where(
-                Tag.contacts.has(Contact.contact_id == contact.contact_id),
+                Tag.contacts.any(Contact.contact_id == contact.contact_id), 
                 Tag.label == command.label))
 
             if not tag:
