@@ -12,6 +12,7 @@ class EmailModel(BaseModel):
 class NoteModel(BaseModel):
     id: int
     text: str
+    tags: list[str]
 
 class ContactModel(BaseModel):
     id: int
