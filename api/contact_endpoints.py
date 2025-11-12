@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from data.contact_commands import ContactCommands, CreateContact, UpdateContact
 from data.note_commands import NoteCommands, CreateNote
+from data.tag_commands import AddTag
 from data.contact_queries import ContactQueries
 from data.note_queries import NoteQueries
 from data.exceptions import ContactAlreadyExists, ContactNotFound
@@ -61,6 +62,17 @@ def add_note_to_contact(contact_id: int, command: CreateNote):
     note = commands.add_note_for_contact(contact_id, command)
     
     return mappers.map_note(note)
+
+# POST /contacts/{contact_id}/tags-> add a tag for a contact 
+@router.post("/{contact_id}/tags")
+def add_tag_to_contact(contact_id: int, command: AddTag):
+    try:
+        commands = ContactCommands(database_engine)
+        contact = commands.add_tag_to_contact(contact_id, command)
+        return mappers.map_contact(contact)
+    except ContactNotFound:
+        raise HTTPException(404, {"message": "Contact not found."})
+    
 
 
 # PUT /contacts/{contact_id} -> Update a contact
