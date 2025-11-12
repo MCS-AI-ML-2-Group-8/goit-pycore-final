@@ -1,4 +1,5 @@
 from __future__ import annotations
+from dataclasses import dataclass
 from datetime import date
 from typing import override
 from sqlalchemy import Date, ForeignKey, Integer, String
@@ -101,3 +102,9 @@ class NoteTag(Base):
 
     note_id: Mapped[int] = mapped_column("note_id", ForeignKey(Note.note_id), primary_key=True)
     tag_id: Mapped[int] = mapped_column("tag_id", ForeignKey(Tag.tag_id), primary_key=True)
+
+
+@dataclass
+class BirthdayReminder:
+    contact: Contact
+    bidthday: date

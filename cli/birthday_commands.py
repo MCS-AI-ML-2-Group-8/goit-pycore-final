@@ -4,7 +4,7 @@ from cli.abstractions import Result
 from data.exceptions import ContactNotFound
 from data.contact_commands import ContactCommands, UpdateContact
 from data.contact_queries import ContactQueries
-from data.models import Contact
+from data.models import BirthdayReminder
 
 
 class BirthdayCommandHandlers:
@@ -34,7 +34,7 @@ class BirthdayCommandHandlers:
             return Result.ERROR, f"ERROR: 'add-birthday' command accepts two arguments: name and date (YYYY-MM-DD). Provided {len(args)} value(s)"
 
         name, date_str = args
-        
+
         try:
             # Parse the date
             birthday = datetime.strptime(date_str, "%Y-%m-%d").date()
@@ -63,7 +63,7 @@ class BirthdayCommandHandlers:
             return Result.ERROR, f"ERROR: 'remove-birthday' command accepts one argument: name. Provided {len(args)} value(s)"
 
         name = args[0]
-        
+
         try:
             _ = self.commands.update_contact_by_name(
                 contact_name=name,
@@ -82,6 +82,8 @@ class BirthdayCommandHandlers:
         Shows contacts with birthdays in the next N days.
         Returns tuple: status, message
         """
+        date_format = "%d.%m.%Y"
+
         if len(args) != 1:
             return Result.ERROR, f"ERROR: 'get-birthdays' command accepts one argument: number of days. Provided {len(args)} value(s)"
 
@@ -93,16 +95,18 @@ class BirthdayCommandHandlers:
             return Result.WARNING, f"Invalid number '{args[0]}'. Please provide a valid integer"
 
         try:
-            contacts = self.queries.get_contacts_with_birthdays_in_days(days)
-            
-            if len(contacts) == 0:
+            reminders = self.queries.get_contacts_with_birthdays_in_days(days)
+
+            if len(reminders) == 0:
                 return Result.WARNING, f"No birthdays in the next {days} day(s)"
 
-            def contact_to_str(contact: Contact):
-                birthday_str = contact.date_of_birth.strftime("%d.%m.%Y") if contact.date_of_birth else "Unknown"
-                return f"{contact.name} - {birthday_str}"
+            def reminder_to_str(reminder: BirthdayReminder):
+                if reminder.contact.date_of_birth is None:
+                    raise ValueError(f"Something went wrong. '{reminder.contact.name}' does not have date of birth")
 
-            return Result.SUCCESS_DATA, "\n".join(map(contact_to_str, contacts))
+                return f"{reminder.contact.name}: {reminder.bidthday.strftime(date_format)} (Date of Birth: {reminder.contact.date_of_birth.strftime(date_format)})"
+
+            return Result.SUCCESS_DATA, "\n".join(map(reminder_to_str, reminders))
 
         except NotImplementedError as e:
             return Result.WARNING, str(e)
