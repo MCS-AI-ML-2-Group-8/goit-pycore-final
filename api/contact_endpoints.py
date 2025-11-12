@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from data.contact_commands import ContactCommands, CreateContact, UpdateContact
+from data.note_commands import NoteCommands, CreateNote
 from data.contact_queries import ContactQueries
 from data.note_queries import NoteQueries
 from data.exceptions import ContactAlreadyExists, ContactNotFound
@@ -51,6 +52,15 @@ def add_contact(command: CreateContact) -> ContactModel:
         return mappers.map_contact(contact)
     except ContactAlreadyExists:
         raise HTTPException(400, {"message": "Contact already exists"})
+    
+
+# POST /contacts/{contact_id}/notes -> create a not for a contact 
+@router.post("/{contact_id}/notes")
+def add_note_to_contact(contact_id: int, command: CreateNote):
+    commands = NoteCommands(database_engine)
+    note = commands.add_note_for_contact(contact_id, command)
+    
+    return mappers.map_note(note)
 
 
 # PUT /contacts/{contact_id} -> Update a contact
