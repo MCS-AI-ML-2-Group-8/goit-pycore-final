@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from data.contact_commands import ContactCommands, CreateContact, UpdateContact
 from data.note_commands import NoteCommands, CreateNote
+from data.phone_commands import PhoneCommands, CreatePhone
 from data.tag_commands import AddTag, RemoveTag
 from data.contact_queries import ContactQueries
 from data.note_queries import NoteQueries
@@ -135,3 +136,15 @@ def get_phones_for_contact(contact_id: int) -> list[PhoneModel]:
     queries = PhoneQueries(database_engine)
     phones = queries.get_contact_phones(contact_id)
     return list(map(mappers.map_phone, phones))
+
+# POST /contacts/{contact_id}/phones -> create a phone for contact
+@router.post("/{contact_id}/phones")
+def create_phone(contact_id: int, command: CreatePhone):
+    try:
+        commands = PhoneCommands(database_engine)
+        phone = commands.add_phone_for_contact(contact_id, command)
+        return mappers.map_phone(phone)
+    except ContactNotFound:
+        raise HTTPException(404, {"message": "Contact not found."})
+    except PhoneAlreadyExists:
+        raise HTTPException(400, {"message": "Phone already exist."})
