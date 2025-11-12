@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from data.contact_commands import ContactCommands, CreateContact, UpdateContact
 from data.contact_queries import ContactQueries
 from data.note_queries import NoteQueries
-from data.exceptions import ContactAlreadyExists
+from data.exceptions import ContactAlreadyExists, ContactNotFound
 from api.database import database_engine
 from api.models import ContactModel, NoteModel
 import api.mappers as mappers
@@ -42,6 +42,7 @@ def get_contact_notes(contact_id: int, tag: str | None = None) -> list[NoteModel
     return list(map(mappers.map_note, notes))
 
 
+# POST /contacts -> Create a new contact
 @router.post("")
 def add_contact(command: CreateContact) -> ContactModel:
     try:
@@ -52,6 +53,7 @@ def add_contact(command: CreateContact) -> ContactModel:
         raise HTTPException(400, {"message": "Contact already exists"})
 
 
+# PUT /contacts/{contact_id} -> Update a contact
 @router.put("/{id}")
 def update_contact(id: int, command: UpdateContact) -> ContactModel:
     commands = ContactCommands(database_engine)
@@ -59,7 +61,12 @@ def update_contact(id: int, command: UpdateContact) -> ContactModel:
     return mappers.map_contact(contact)
 
 
+# DELETE /contacts/{contact_id} -> Delete a contact
 @router.delete("/{id}")
 def delete_contact(id: int) -> None:
-    commands = ContactCommands(database_engine)
-    commands.delete_contact(id)
+    try:
+        commands = ContactCommands(database_engine)
+        commands.delete_contact(id)
+        return {"message": "Contact successfully deleted."}
+    except ContactNotFound:
+        raise HTTPException(404, {"message": "Contact not found"})
