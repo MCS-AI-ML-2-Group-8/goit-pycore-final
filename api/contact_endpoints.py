@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from data.contact_commands import ContactCommands, CreateContact, UpdateContact
 from data.note_commands import NoteCommands, CreateNote
-from data.tag_commands import AddTag
+from data.tag_commands import AddTag, RemoveTag
 from data.contact_queries import ContactQueries
 from data.note_queries import NoteQueries
-from data.exceptions import ContactAlreadyExists, ContactNotFound
+from data.exceptions import ContactAlreadyExists, ContactNotFound, TagNotFound
 from api.database import database_engine
 from api.models import ContactModel, NoteModel
 import api.mappers as mappers
@@ -92,3 +92,17 @@ def delete_contact(id: int) -> None:
         return {"message": "Contact successfully deleted."}
     except ContactNotFound:
         raise HTTPException(404, {"message": "Contact not found"})
+    
+    
+# DELETE /contacts/{contact_id}/tags -> delete tag from contact
+@router.delete("/{contact_id}/tags")
+def delete_tag_from_contact(contact_id: int, command: RemoveTag) -> None:
+    try:
+        commands = ContactCommands(database_engine)
+        commands.remove_tag_from_contact(contact_id, command)
+        return {"message": "Tag successfully deleted."}
+    except ContactNotFound:
+        raise HTTPException(404, {"message": "Contact not found"})
+    except TagNotFound:
+        raise HTTPException(404, {"message": "Tag not found"})
+    
