@@ -6,12 +6,16 @@ from data.tag_commands import AddTag, RemoveTag
 from data.contact_queries import ContactQueries
 from data.note_queries import NoteQueries
 from data.phone_queries import PhoneQueries
+from data.email_queries import EmailQueries
+from data.email_commands import EmailCommands, CreateEmail, UpdateEmail
 from data.exceptions import (
     ContactAlreadyExists,
     ContactNotFound,
     TagNotFound,
     PhoneAlreadyExists,
-    PhoneNotFound
+    PhoneNotFound,
+    EmailNotFound,
+    EmailAlreadyExists
 )
 from api.database import database_engine
 from api.models import ContactModel, NoteModel, PhoneModel, EmailModel
@@ -183,3 +187,66 @@ def delete_phone(contact_id: int, phone_id: int) -> None:
         return {"message": "Phone successfully deleted."}
     except PhoneNotFound:
         raise HTTPException(404, {"message": "Phone not found"})
+    
+    
+
+# EMAILS Endpoints
+
+# GET /contacts/{contact_id}/emails ->  get emails by contact ID
+@router.get("/{contact_id}/emails")
+def get_emails_for_contact(contact_id: int) -> list[EmailModel]:
+    contact_queries = ContactQueries(database_engine)
+    contact = contact_queries.get_contact_by_id(contact_id)
+
+    if contact is None:
+        raise HTTPException(404, {"message": "Contact not found"})
+        
+    queries = EmailQueries(database_engine)
+    emails = queries.get_contact_emails(contact_id)
+    return list(map(mappers.map_email, emails))
+
+# POST /contacts/{contact_id}/emails -> create an email for contact
+@router.post("/{contact_id}/emails")
+def create_email(contact_id: int, command: CreateEmail) -> EmailModel:
+    try:
+        commands = EmailCommands(database_engine)
+        email = commands.add_email_for_contact(contact_id, command)
+        return mappers.map_email(email)
+    except ContactNotFound:
+        raise HTTPException(404, {"message": "Contact not found."})
+    except EmailAlreadyExists:
+        raise HTTPException(400, {"message": "Email already exists."})
+    
+# PUT /contacts/{contact_id}/emails/{email_id} -> update an email for contact
+@router.put("/{contact_id}/emails/{email_id}")
+def update_email(contact_id: int, email_id: int,  command: UpdateEmail) -> EmailModel:
+    contact_queries = ContactQueries(database_engine)
+    contact = contact_queries.get_contact_by_id(contact_id)
+
+    if contact is None:
+        raise HTTPException(404, {"message": "Contact not found"})
+    
+    try:
+        commands = EmailCommands(database_engine)
+        email = commands.update_email(email_id, command)
+        return mappers.map_email(email)
+    except EmailNotFound:
+        raise HTTPException(404, {"message": "Email not found."})
+    except EmailAlreadyExists:
+        raise HTTPException(400, {"message": "Email already exists."})
+    
+# DELETE /contacts/{contact_id}/emails/{email_id} -> Delete an email
+@router.delete("/{contact_id}/emails/{email_id}")
+def delete_email(contact_id: int, email_id: int):
+    contact_queries = ContactQueries(database_engine)
+    contact = contact_queries.get_contact_by_id(contact_id)
+
+    if contact is None:
+        raise HTTPException(404, {"message": "Contact not found"})
+    
+    try:
+        commands = EmailCommands(database_engine)
+        commands.delete_email(email_id)
+        return {"message": "Email successfully deleted."}
+    except EmailNotFound:
+        raise HTTPException(404, {"message": "Email not found"})
