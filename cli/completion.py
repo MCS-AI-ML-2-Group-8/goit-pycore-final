@@ -169,6 +169,7 @@ COMPLETION_RULES: dict[str, List[str]] = {
     "add-note-to-contact":          ["name!", "free!", "tag!" ],
 }
 
+PHONE_MASKS = ["050########", "067########"]
 
 class CLIAutoSuggest(AutoSuggest):
     def __init__(self, get_candidates):
@@ -221,14 +222,19 @@ class CLICompleter(Completer):
         word_index = (len(parts)) if at_word_boundary else (len(parts) - 1)
         current_prefix = "" if at_word_boundary else (parts[-1] if parts else "")
 
-        def complete_words(words: Iterable[str]):
+        def complete_words(words: Iterable[str], meta: str | None = None):
             in_quotes = current_prefix.startswith('"') or current_prefix.startswith("'")
             for w in sorted(set(words)):
                 insert_text = w
                 if not in_quotes and _needs_quotes(w):
                     insert_text = _quote_token(w)
                 display_text = _quote_token(w) if (not in_quotes and _needs_quotes(w)) else w
-                yield Completion(insert_text, start_position=-len(current_prefix), display=display_text)
+                yield Completion(
+                    insert_text,
+                    start_position=-len(current_prefix),
+                    display=display_text,
+                    display_meta=meta  # ← метка справа в меню
+                )
 
         if not line:
             for cmd in self.commands:
@@ -266,7 +272,12 @@ class CLICompleter(Completer):
         if rule.startswith("phone("):
             name = parts[1] if len(parts) > 1 else ""
             phones = _fetch_contact_phones(self.engine, name) if name else []
-            yield from complete_words(_prefix_match(phones, current_prefix))
+
+            # Для add-phone показываем и шаблоны, и реальные номера
+            if first == "add-phone":
+                yield from complete_words(_prefix_match(PHONE_MASKS, current_prefix), meta="mask")
+
+            yield from complete_words(_prefix_match(phones, current_prefix), meta="existing")
             return
 
         if rule.startswith("email("):
@@ -289,7 +300,7 @@ class CLICompleter(Completer):
             return
 
         if rule.startswith("phone-new"):
-            yield from complete_words(_prefix_match(["0501234567", "0931234567", "0123456789"], current_prefix))
+            yield from complete_words(_prefix_match(PHONE_MASKS, current_prefix), meta="mask")
             return
 
         # free — ничего не подсказываем
@@ -323,7 +334,10 @@ def build_auto_suggest(engine: Engine, all_commands: list[str]) -> CLIAutoSugges
             return _fetch_all_tags(engine)
         if rule.startswith("phone("):
             name = parts[1] if len(parts) > 1 else ""
-            return _fetch_contact_phones(engine, name) if name else []
+            phones = _fetch_contact_phones(engine, name) if name else []
+            if first == "add-phone":
+                return PHONE_MASKS + phones
+            return phones
         if rule.startswith("email("):
             name = parts[1] if len(parts) > 1 else ""
             return _fetch_contact_emails(engine, name) if name else []
@@ -334,7 +348,7 @@ def build_auto_suggest(engine: Engine, all_commands: list[str]) -> CLIAutoSugges
         if rule.startswith("date"):
             return ["YYYY-MM-DD"]
         if rule.startswith("phone-new"):
-            return ["0501234567", "0931234567", "0123456789"]
+            return PHONE_MASKS
         # free 
         return []
 
