@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Iterable, Optional, List
+from typing import Iterable, Optional, List, TYPE_CHECKING
 import shlex
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.auto_suggest import AutoSuggest, Suggestion
@@ -7,10 +7,13 @@ from prompt_toolkit.document import Document
 from sqlalchemy import Engine
 
 from data.contact_queries import ContactQueries
-try:
-    from data.note_queries import NoteQueries as _NoteQueries
-except Exception:
-    _NoteQueries = None
+from data.phone_queries import PhoneQueries
+from data.email_queries import EmailQueries
+from cli.note_commands import NoteCommandHandlers
+
+if TYPE_CHECKING:
+    from data.models import Tag
+
 
 BUILTIN_COMMANDS = [
     "hello", "exit", "close",
@@ -39,13 +42,23 @@ def _split_words(s: str) -> list[str]:
         return shlex.split(s, posix=True)
     except ValueError:
         return s.split()
+    
+def _needs_quotes(s: str) -> bool:
+    if not s:
+        return False
+    if any(ch.isspace() for ch in s):
+        return True
+    return '"' in s
 
-def _tag_label(tag_obj) -> str | None:
+def _quote_token(s: str) -> str:
+    escaped = s.replace('\\', '\\\\').replace('"', '\\"')
+    return f'"{escaped}"'
+
+def _tag_label(tag_obj: 'Tag | str') -> str | None:
     if isinstance(tag_obj, str):
-        return tag_obj
-    if hasattr(tag_obj, "label") and getattr(tag_obj, "label"):
-        return str(getattr(tag_obj, "label"))
-    return None
+        return tag_obj or None
+    
+    return tag_obj.label or None
 
 def _note_text(note_obj) -> str | None:
     txt = getattr(note_obj, "text", None)
@@ -60,29 +73,27 @@ def _fetch_contact_names(engine: Engine) -> list[str]:
 
 def _fetch_contact_phones(engine: Engine, contact_name: str) -> list[str]:
     try:
-        contact = next((c for c in ContactQueries(engine).get_contacts() if c.name == contact_name), None)
-        if not contact:
-            return []
-        phones: list[str] = []
-        for p in getattr(contact, "phones", []) or []:
-            num = getattr(p, "phone_number", p)
-            if isinstance(num, str) and num:
-                phones.append(num)
-        return sorted(set(phones))
+        pq = PhoneQueries(engine)
+        phones = pq.get_contact_phones_by_name(contact_name)  # list[Phone]
+        res: list[str] = []
+        for p in (phones or []):
+            num = p.phone_number
+            if num:
+                res.append(num)
+        return sorted(set(res))
     except Exception:
         return []
 
 def _fetch_contact_emails(engine: Engine, contact_name: str) -> list[str]:
     try:
-        contact = next((c for c in ContactQueries(engine).get_contacts() if c.name == contact_name), None)
-        if not contact:
-            return []
-        emails: list[str] = []
-        for e in getattr(contact, "emails", []) or []:
-            addr = getattr(e, "email_address", e)
-            if isinstance(addr, str) and addr:
-                emails.append(addr)
-        return sorted(set(emails))
+        eq = EmailQueries(engine)
+        emails = eq.get_contact_emails_by_name(contact_name)  # list[Email]
+        res: list[str] = []
+        for e in (emails or []):
+            addr = e.email_address
+            if addr:
+                res.append(addr)
+        return sorted(set(res))
     except Exception:
         return []
 
@@ -92,39 +103,28 @@ def _fetch_all_tags(engine: Engine) -> list[str]:
     try:
         cq = ContactQueries(engine)
         for c in cq.get_contacts():
-            for t in (getattr(c, "tags", None) or []):
+            for t in (c.tags or []):
                 lab = _tag_label(t)
                 if lab:
                     tags.add(lab)
     except Exception:
-        pass
+        return []
 
     try:
-        if _NoteQueries is not None:
-            nq = _NoteQueries(engine)
-            for n in nq.get_notes():
-                for t in (getattr(n, "tags", None) or []):
-                    lab = _tag_label(t)
-                    if lab:
-                        tags.add(lab)
+        for lab in NoteCommandHandlers.list_note_tags(engine):
+            tags.add(lab)
     except Exception:
-        pass
+        # игнорим теги заметок, но уже есть теги контактов
+        return sorted(tags)
 
     return sorted(tags)
 
 def _fetch_notes_texts(engine: Engine) -> list[str]:
-    if _NoteQueries is None:
-        return []
-    texts: list[str] = []
     try:
-        nq = _NoteQueries(engine)
-        for n in nq.get_notes():
-            txt = _note_text(n)
-            if txt:
-                texts.append(txt)
+        return NoteCommandHandlers.list_note_texts(engine)
     except Exception:
-        pass
-    return texts
+        return []
+
 
 def _prefix_match(items: Iterable[str], prefix: str) -> list[str]:
     p = (prefix or "").lower()
@@ -196,6 +196,10 @@ class CLIAutoSuggest(AutoSuggest):
             return None
 
         only = matches[0]
+
+        if _needs_quotes(only) and not (current_prefix.startswith('"') or current_prefix.startswith("'")):
+            return None
+
         if len(only) <= len(current_prefix):
             return None
 
@@ -218,8 +222,13 @@ class CLICompleter(Completer):
         current_prefix = "" if at_word_boundary else (parts[-1] if parts else "")
 
         def complete_words(words: Iterable[str]):
+            in_quotes = current_prefix.startswith('"') or current_prefix.startswith("'")
             for w in sorted(set(words)):
-                yield Completion(w, start_position=-len(current_prefix), display=w)
+                insert_text = w
+                if not in_quotes and _needs_quotes(w):
+                    insert_text = _quote_token(w)
+                display_text = _quote_token(w) if (not in_quotes and _needs_quotes(w)) else w
+                yield Completion(insert_text, start_position=-len(current_prefix), display=display_text)
 
         if not line:
             for cmd in self.commands:

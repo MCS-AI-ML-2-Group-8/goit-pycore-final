@@ -14,6 +14,27 @@ class NoteCommandHandlers:
     def __init__(self, engine: Engine):
         self.commands = NoteCommands(engine)
         self.queries = NoteQueries(engine)
+    
+    @staticmethod
+    def list_note_texts(engine: Engine) -> list[str]:
+        nq = NoteQueries(engine)
+        texts: list[str] = []
+        for n in nq.get_notes():
+            txt = getattr(n, "text", None)
+            if txt:
+                texts.append(str(txt))
+        return texts
+
+    @staticmethod
+    def list_note_tags(engine: Engine) -> list[str]:
+        nq = NoteQueries(engine)
+        tags: set[str] = set()
+        for n in nq.get_notes():
+            for t in (n.tags or []):
+                lab = t.label if hasattr(t, "label") and t.label else (t if isinstance(t, str) else None)
+                if lab:
+                    tags.add(lab)
+        return sorted(tags)
 
     def get_commands(self):
         """
