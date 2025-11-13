@@ -16,24 +16,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install the latest version Bun
+      - name: Install the latest version of Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+
+      - name: Install frontend dependencies with Bun
+        run: bun install
+        working-directory: ./frontend
+
+      - name: Build frontend with Bun
+        run: bun run build
+        working-directory: ./frontend
 
       - name: Install the latest version of uv
         uses: astral-sh/setup-uv@v7
         with:
           python-version: '3.13'
 
-      - name: Build frontend
-        run: bun run build
-        working-directory: ./frontend
-
-      - name: Create and start virtual environment and install dependencies
+      - name: Install dependencies with uv
         run: uv sync
 
-      - name: Upload artifact for deployment jobs
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: python-app
