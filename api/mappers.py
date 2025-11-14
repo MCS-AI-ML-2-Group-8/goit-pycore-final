@@ -19,7 +19,11 @@ def map_email(email: Email) -> EmailModel:
     return EmailModel(id=email.email_id, emailAddress=email.email_address)
 
 def map_note(note: Note) -> NoteModel:
-    return NoteModel(id=note.note_id, text=note.text)
+    return NoteModel(
+        id=note.note_id,
+        text=note.text,
+        tags=list(map(map_tag, note.tags))
+    )
 
 def map_tag(tag: Tag) -> str:
     return tag.label

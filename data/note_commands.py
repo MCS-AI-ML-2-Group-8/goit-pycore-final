@@ -9,6 +9,7 @@ from data.tag_commands import AddTag, RemoveTag
 class CreateNote(DomainCommand):
     text: str
 
+
 class UpdateNote(DomainCommand):
     text: str
 
@@ -16,7 +17,9 @@ class UpdateNote(DomainCommand):
 class NoteCommands(DatabaseCommandHandler):
     def add_note_for_contact(self, contact_id: int, command: CreateNote) -> Note:
         with Session(self.engine) as session:
-            contact = session.scalar(select(Contact).where(Contact.contact_id == contact_id))
+            contact = session.scalar(
+                select(Contact).where(Contact.contact_id == contact_id)
+            )
             if not contact:
                 raise ContactNotFound()
 
@@ -29,9 +32,13 @@ class NoteCommands(DatabaseCommandHandler):
             session.refresh(note)
             return note
 
-    def add_note_for_contact_by_name(self, contact_name: str, command: CreateNote) -> Note:
+    def add_note_for_contact_by_name(
+        self, contact_name: str, command: CreateNote
+    ) -> Note:
         with Session(self.engine) as session:
-            contact = session.scalar(select(Contact).where(Contact.name == contact_name))
+            contact = session.scalar(
+                select(Contact).where(Contact.name == contact_name)
+            )
             if not contact:
                 raise ContactNotFound()
 
@@ -95,7 +102,7 @@ class NoteCommands(DatabaseCommandHandler):
             session.delete(note)
             session.commit()
 
-    def add_tag_to_note(self, note_id: int, command: AddTag) -> None:
+    def add_tag_to_note(self, note_id: int, command: AddTag) -> Note:
         with Session(self.engine) as session:
             note = session.get(Note, note_id)
             if not note:
@@ -108,11 +115,13 @@ class NoteCommands(DatabaseCommandHandler):
                 session.add(tag)
 
             if tag in note.tags:
-                return # already added
+                return note # was None before
 
             note.tags.append(tag)
             session.add(note)
             session.commit()
+            session.refresh(note) # added This line
+            return note # to see something in the response body 
 
     def add_tag_to_note_by_fragment(self, fragment: str, command: AddTag) -> None:
         with Session(self.engine) as session:
@@ -128,7 +137,7 @@ class NoteCommands(DatabaseCommandHandler):
                 session.add(tag)
 
             if tag in note.tags:
-                return # already added
+                return  # already added
 
             note.tags.append(tag)
             session.add(note)
@@ -140,9 +149,12 @@ class NoteCommands(DatabaseCommandHandler):
             if not note:
                 raise NoteNotFound()
 
-            tag = session.scalar(select(Tag).where(
-                Tag.notes.has(Note.note_id == note.note_id),
-                Tag.label == command.label))
+            tag = session.scalar(
+                select(Tag).where(
+                    Tag.notes.has(Note.note_id == note.note_id),
+                    Tag.label == command.label,
+                )
+            )
 
             if not tag:
                 raise TagNotFound()
@@ -150,16 +162,21 @@ class NoteCommands(DatabaseCommandHandler):
             note.tags.remove(tag)
             session.commit()
 
-    def remove_tag_from_note_by_fragment(self, fragment: str, command: RemoveTag) -> None:
+    def remove_tag_from_note_by_fragment(
+        self, fragment: str, command: RemoveTag
+    ) -> None:
         with Session(self.engine) as session:
             query = select(Note).where(Note.text.like(f"%{fragment}%"))
             note = session.scalar(query)
             if not note:
                 raise NoteNotFound()
 
-            tag = session.scalar(select(Tag).where(
-                Tag.notes.any(Note.note_id == note.note_id),
-                Tag.label == command.label))
+            tag = session.scalar(
+                select(Tag).where(
+                    Tag.notes.any(Note.note_id == note.note_id),
+                    Tag.label == command.label,
+                )
+            )
 
             if not tag:
                 raise TagNotFound()
