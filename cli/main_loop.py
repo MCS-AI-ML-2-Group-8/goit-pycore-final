@@ -7,13 +7,12 @@ from cli.email_commands import EmailCommandHandlers
 from cli.birthday_commands import BirthdayCommandHandlers
 from cli.note_commands import NoteCommandHandlers
 from cli.pipeline import execute_handler
+from cli.completion import build_completer, build_auto_suggest
 from prompt_toolkit import PromptSession
-from prompt_toolkit.history import FileHistory, InMemoryHistory
-from prompt_toolkit import prompt
+from prompt_toolkit.history import FileHistory
 from prompt_toolkit.key_binding import KeyBindings
 from pathlib import Path
 import shlex
-from cli.completion import build_completer, build_auto_suggest
 
 def parse_input(user_input: str) -> tuple[str, list[str]]:
     if not user_input:
@@ -79,7 +78,6 @@ def launch_main_loop():
         elif command == "history-clear":
             try:
                 history_path.unlink(missing_ok=True)
-
                 session = PromptSession(
                     history=FileHistory(str(history_path)),
                     completer=completer,
