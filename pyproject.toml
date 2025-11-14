@@ -8,6 +8,7 @@ dependencies = [
     "colorama>=0.4.6",
     "fastapi[standard]>=0.120.4",
     "fastmcp==2.13.0.2",
+    "prompt-toolkit>=3.0.52",
     "pydantic>=2.12.3",
     "pytest>=8.4.2",
     "sqlalchemy>=2.0.44",

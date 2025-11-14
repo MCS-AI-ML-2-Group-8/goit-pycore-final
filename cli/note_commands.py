@@ -15,6 +15,19 @@ class NoteCommandHandlers:
         self.commands = NoteCommands(engine)
         self.queries = NoteQueries(engine)
 
+    @staticmethod
+    def list_note_texts(engine: Engine) -> list[str]:
+        queries = NoteQueries(engine)
+        notes = [note.text for note in queries.get_notes()]
+        return notes
+
+    @staticmethod
+    def list_note_tags(engine: Engine) -> list[str]:
+        queries = NoteQueries(engine)
+        tags: set[str] = set()
+        tags = { tag.label for note in queries.get_notes() for tag in note.tags }
+        return list(sorted(tags))
+
     def get_commands(self):
         """
         Returns all commands this handler can process
