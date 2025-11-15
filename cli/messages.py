@@ -1,3 +1,10 @@
+"""
+Colored message printing utilities for CLI output.
+
+This module provides functions for printing colored messages to the console
+based on result status (success, warning, error) using colorama.
+"""
+
 from colorama import Fore
 from cli.abstractions import Result
 

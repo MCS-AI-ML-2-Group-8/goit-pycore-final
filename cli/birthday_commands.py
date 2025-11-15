@@ -1,3 +1,10 @@
+"""
+CLI command handlers for birthday management.
+
+This module provides CLI command handlers for managing contact birthdays
+and retrieving upcoming birthday reminders.
+"""
+
 from datetime import datetime
 from sqlalchemy import Engine
 from cli.abstractions import Result

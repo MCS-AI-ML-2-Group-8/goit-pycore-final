@@ -1,3 +1,11 @@
+"""
+CLI command handlers for note operations.
+
+This module provides CLI command handlers for managing notes,
+both standalone and contact-associated, including tag management
+and text search functionality.
+"""
+
 from sqlalchemy import Engine
 from cli.abstractions import Result
 from data.exceptions import ContactNotFound, NoteNotFound, TagNotFound

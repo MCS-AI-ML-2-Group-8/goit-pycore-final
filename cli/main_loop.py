@@ -1,3 +1,11 @@
+"""
+Main CLI loop with interactive prompt and command routing.
+
+This module implements the main REPL (Read-Eval-Print Loop) for the
+contact management assistant, including prompt_toolkit integration
+for auto-completion, command history, and colored output.
+"""
+
 from data.database import database_engine
 from cli.messages import print_assistant_message, print_status_message
 from cli.abstractions import CommandHandler, Result

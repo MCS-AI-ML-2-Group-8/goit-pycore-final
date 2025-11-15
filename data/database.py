@@ -1,3 +1,11 @@
+"""
+Database initialization and configuration.
+
+This module sets up the SQLite database connection and creates all tables.
+The database location can be configured via the Magic_DB_PATH environment variable (for deployment),
+otherwise it defaults to the user's home directory.
+"""
+
 import os
 from pathlib import Path
 from sqlalchemy import create_engine

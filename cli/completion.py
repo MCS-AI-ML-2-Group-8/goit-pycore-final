@@ -1,3 +1,11 @@
+"""
+Smart command completion and auto-suggest for the CLI.
+
+This module provides intelligent auto-completion and suggestion features
+using prompt_toolkit, including context-aware completion for commands,
+contact names, tags, phone numbers, and email addresses.
+"""
+
 from __future__ import annotations
 import shlex
 from typing import Callable, override
@@ -31,8 +39,18 @@ BUILTIN_COMMANDS = [
 ]
 
 def _split_words(s: str) -> list[str]:
-    """Шелл-разбор для корректной работы с кавычками.
-    Фоллбек на .split() если кавычки не закрыты."""
+    """
+    Parse input string into words using shell-like quoting rules.
+    
+    Handles quoted strings properly. Falls back to simple split()
+    if quotes are unclosed.
+    
+    Args:
+        s: Input string to parse
+        
+    Returns:
+        List of parsed words
+    """
     if not s:
         return []
     try:
@@ -41,6 +59,15 @@ def _split_words(s: str) -> list[str]:
         return s.split()
 
 def _needs_quotes(s: str) -> bool:
+    """
+    Check if a string needs to be quoted for shell parsing.
+    
+    Args:
+        s: String to check
+        
+    Returns:
+        True if string contains spaces or quotes
+    """
     if not s:
         return False
     if any(ch.isspace() for ch in s):
@@ -48,10 +75,28 @@ def _needs_quotes(s: str) -> bool:
     return '"' in s
 
 def _quote_token(s: str) -> str:
+    """
+    Quote and escape a string for shell parsing.
+    
+    Args:
+        s: String to quote
+        
+    Returns:
+        Quoted and escaped string
+    """
     escaped = s.replace('\\', '\\\\').replace('"', '\\"')
     return f'"{escaped}"'
 
 def _fetch_contact_names(engine: Engine) -> list[str]:
+    """
+    Fetch all contact names from the database.
+    
+    Args:
+        engine: SQLAlchemy database engine
+        
+    Returns:
+        List of contact names, empty list on error
+    """
     try:
         q = ContactQueries(engine)
         return [c.name for c in q.get_contacts()]
@@ -59,6 +104,16 @@ def _fetch_contact_names(engine: Engine) -> list[str]:
         return []
 
 def _fetch_contact_phones(engine: Engine, contact_name: str) -> list[str]:
+    """
+    Fetch all phone numbers for a specific contact.
+    
+    Args:
+        engine: SQLAlchemy database engine
+        contact_name: Name of the contact
+        
+    Returns:
+        Sorted list of unique phone numbers, empty list on error
+    """
     try:
         pq = PhoneQueries(engine)
         phones = pq.get_contact_phones_by_name(contact_name) # list[Phone]
@@ -68,6 +123,16 @@ def _fetch_contact_phones(engine: Engine, contact_name: str) -> list[str]:
         return []
 
 def _fetch_contact_emails(engine: Engine, contact_name: str) -> list[str]:
+    """
+    Fetch all email addresses for a specific contact.
+    
+    Args:
+        engine: SQLAlchemy database engine
+        contact_name: Name of the contact
+        
+    Returns:
+        Sorted list of unique email addresses, empty list on error
+    """
     try:
         eq = EmailQueries(engine)
         emails = eq.get_contact_emails_by_name(contact_name) # list[Email]
@@ -77,6 +142,15 @@ def _fetch_contact_emails(engine: Engine, contact_name: str) -> list[str]:
         return []
 
 def _fetch_all_tags(engine: Engine) -> list[str]:
+    """
+    Fetch all unique tags from both contacts and notes.
+    
+    Args:
+        engine: SQLAlchemy database engine
+        
+    Returns:
+        Sorted list of unique tag labels, empty list on error
+    """
     tags: set[str] = set()
 
     try:
@@ -94,12 +168,21 @@ def _fetch_all_tags(engine: Engine) -> list[str]:
                 tags.add(tag.label)
 
     except Exception:
-        # игнорим теги заметок, но уже есть теги контактов
+        # Ignore note tags if error, but we already have contact tags
         return sorted(tags)
 
     return sorted(tags)
 
 def _fetch_notes_texts(engine: Engine) -> list[str]:
+    """
+    Fetch all note texts from the database.
+    
+    Args:
+        engine: SQLAlchemy database engine
+        
+    Returns:
+        List of note texts, empty list on error
+    """
     try:
         queries = NoteQueries(engine)
         notes = [note.text for note in queries.get_notes()]
@@ -108,6 +191,16 @@ def _fetch_notes_texts(engine: Engine) -> list[str]:
         return []
 
 def _prefix_match(items: Iterable[str], prefix: str) -> list[str]:
+    """
+    Filter items that start with the given prefix (case-insensitive).
+    
+    Args:
+        items: Collection of strings to filter
+        prefix: Prefix to match against
+        
+    Returns:
+        List of items that start with the prefix
+    """
     p = (prefix or "").lower()
     return [x for x in items if x.lower().startswith(p)]
 
@@ -295,9 +388,29 @@ class CLICompleter(Completer):
         return
 
 def build_completer(engine: Engine, all_commands: list[str]) -> CLICompleter:
+    """
+    Build a CLI completer instance with context-aware completion.
+    
+    Args:
+        engine: SQLAlchemy database engine for fetching completion data
+        all_commands: List of all available command names
+        
+    Returns:
+        Configured CLICompleter instance
+    """
     return CLICompleter(engine, all_commands)
 
 def build_auto_suggest(engine: Engine, all_commands: list[str]) -> CLIAutoSuggest:
+    """
+    Build an auto-suggest instance for inline completion hints.
+    
+    Args:
+        engine: SQLAlchemy database engine for fetching suggestion data
+        all_commands: List of all available command names
+        
+    Returns:
+        Configured CLIAutoSuggest instance
+    """
     completer = CLICompleter(engine, all_commands)
 
     def _get_candidates(full_text: str, cursor_pos: int, word_index: int, prefix: str) -> list[str]:

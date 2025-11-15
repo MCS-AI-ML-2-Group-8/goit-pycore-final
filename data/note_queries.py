@@ -1,3 +1,10 @@
+"""
+Query handlers for note-related database operations.
+
+This module provides read-only database operations for notes,
+including retrieval by contact, tag, and text search functionality.
+"""
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from data.abstractions import DatabaseQueryHandler

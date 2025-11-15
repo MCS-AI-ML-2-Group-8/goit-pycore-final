@@ -1,3 +1,10 @@
+"""
+Query handlers for phone number-related database operations.
+
+This module provides read-only database operations for retrieving
+phone numbers associated with contacts.
+"""
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from data.abstractions import DatabaseQueryHandler

@@ -1,3 +1,15 @@
+"""
+Entry point for the contact management assistant application.
+
+This module provides a dual-mode launcher that can run either:
+- CLI mode: Interactive command-line interface (default)
+- API mode: REST API server (activated with --api flag)
+
+Usage:
+    python main.py           # Launch CLI mode
+    python main.py --api     # Launch API server on http://127.0.0.1:8000
+"""
+
 import sys
 
 def main():

@@ -1,3 +1,10 @@
+"""
+CLI command handlers for phone number operations.
+
+This module provides CLI command handlers for managing phone numbers
+associated with contacts, including add, edit, and delete operations.
+"""
+
 from sqlalchemy import Engine
 from pydantic import ValidationError
 from cli.abstractions import Result

@@ -1,3 +1,10 @@
+"""
+Core abstractions for CLI command handling.
+
+This module defines the result types and type aliases used throughout
+the CLI layer for command execution and response handling.
+"""
+
 from enum import Enum
 from typing import Callable
 

@@ -1,3 +1,10 @@
+"""
+Command handlers for contact-related write operations.
+
+This module provides database write operations for contacts,
+including creation, update, deletion, and tag management.
+"""
+
 from datetime import date
 from pydantic import Field
 from sqlalchemy import select

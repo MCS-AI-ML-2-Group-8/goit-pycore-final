@@ -1,3 +1,10 @@
+"""
+Command handlers for email address-related write operations.
+
+This module provides database write operations for email addresses,
+including creation, update, and deletion.
+"""
+
 from pydantic import Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
