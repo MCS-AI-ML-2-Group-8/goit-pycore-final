@@ -14,3 +14,9 @@ wheels/
 
 # Frontend
 app/
+
+# MCP settings
+.claude/
+
+#IDE
+.idea/

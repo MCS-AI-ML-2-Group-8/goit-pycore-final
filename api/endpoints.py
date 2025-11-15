@@ -1,18 +1,24 @@
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from api.contact_endpoints import router as contacts_router
 from api.notes_endpoints import router as notes_router
+from llm.chat import chat_with_claude
+from llm.tools import mcp
 
+# CORS
 origins = [
     "http://localhost:5173",
     "https://localhost:5173",
     "https://magic-8.azurewebsites.net"
 ]
 
-app = FastAPI()
+# MCP server
+mcp_app = mcp.http_app("/", transport="sse")
+
+app = FastAPI(lifespan=mcp_app.lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,  # List of allowed origins
@@ -22,12 +28,24 @@ app.add_middleware(
 )
 app.include_router(contacts_router)
 app.include_router(notes_router)
+app.mount("/mcp", mcp_app)
 
 # Mount assets only if exist
 if Path("./app/assets").is_dir():
-    app.mount("/assets", StaticFiles(directory="./app/assets"), name="static")
+    app.mount("/", StaticFiles(directory="./app/"), name="static")
     print("FastAPI: assets mounted")
+
+# Chatbot
+@app.post("/chat")
+def chat(message: str) -> dict[str, str]:
+    answer = chat_with_claude(message)
+    return {
+        "answer": answer
+    }
 
 @app.get("/")
 def serve_app():
-    return FileResponse("./app/index.html")
+    if Path("./app/index.html").exists():
+        return FileResponse("./app/index.html")
+    else:
+        raise HTTPException(404, "App not found")

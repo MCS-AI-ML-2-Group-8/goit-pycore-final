@@ -1,4 +1,4 @@
-from cli.database import database_engine
+from data.database import database_engine
 from cli.messages import print_assistant_message, print_status_message
 from cli.abstractions import CommandHandler, Result
 from cli.contact_commands import ContactCommandHandlers
