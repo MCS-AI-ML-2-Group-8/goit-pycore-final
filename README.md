@@ -24,7 +24,7 @@ A command-line personal assistant for managing contacts, notes, and reminders wi
 cd goit-pycore-final
 
 # Install dependencies
-pip install -e .
+uv sync
 ```
 
 ## Usage
@@ -32,13 +32,13 @@ pip install -e .
 ### CLI Mode (Default)
 
 ```bash
-python main.py
+uv run main.py
 ```
 
 ### API Mode
 
 ```bash
-python main.py --api
+uv run main.py --api
 ```
 
 API is available at `http://localhost:8000`
@@ -156,5 +156,5 @@ Data is stored in SQLite database at `~/contacts.db`. The database is created au
 ## Running Tests
 
 ```bash
-pytest
+uv run pytest
 ```

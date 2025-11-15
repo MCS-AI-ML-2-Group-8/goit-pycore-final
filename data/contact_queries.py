@@ -91,7 +91,7 @@ class ContactQueries(DatabaseQueryHandler):
 
                 reminder = BirthdayReminder(
                     contact=contact,
-                    bidthday=celebration_day
+                    birthday=celebration_day
                 )
                 reminders.append(reminder)
 

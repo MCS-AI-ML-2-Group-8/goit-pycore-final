@@ -114,4 +114,4 @@ class NoteTag(Base):
 @dataclass
 class BirthdayReminder:
     contact: Contact
-    bidthday: date
+    birthday: date

@@ -44,7 +44,7 @@ def get_contacts_by_tag(tag: str) -> list[Data]:
 def _map_reminder(reminder: BirthdayReminder):
     return {
         "contact": map_contact(reminder.contact).model_dump(),
-        "celebration_date": reminder.bidthday.isoformat()
+        "celebration_date": reminder.birthday.isoformat()
     }
 
 @mcp.tool
