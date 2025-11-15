@@ -1,5 +1,5 @@
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -45,4 +45,7 @@ def chat(message: str) -> dict[str, str]:
 
 @app.get("/")
 def serve_app():
-    return FileResponse("./app/index.html")
+    if Path("./app/index.html").exists():
+        return FileResponse("./app/index.html")
+    else:
+        raise HTTPException(404, "App not found")

@@ -11,7 +11,7 @@ from data.email_queries import EmailQueries
 from data.note_commands import NoteCommands, CreateNote, UpdateNote
 from data.note_queries import NoteQueries
 from data.tag_commands import AddTag, RemoveTag
-from api.database import database_engine as engine
+from data.database import database_engine as engine
 from api.mappers import map_contact, map_note, map_phone, map_email
 
 mcp = FastMCP(name="Magic 8")
