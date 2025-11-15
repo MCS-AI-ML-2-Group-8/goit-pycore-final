@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from api.contact_endpoints import router as contacts_router
 from api.notes_endpoints import router as notes_router
-from llm.chat import chat_with_claude
+from api.chat_endpoints import router as chat_router
 from llm.tools import mcp
 
 # CORS
@@ -28,21 +28,17 @@ app.add_middleware(
 )
 app.include_router(contacts_router)
 app.include_router(notes_router)
+app.include_router(chat_router)
+
+# MCP server
 app.mount("/mcp", mcp_app)
+
+# Frontend
+@app.get("/", include_in_schema=False)
+def serve_app():
+    return FileResponse("./app/index.html")
 
 # Mount assets only if exist
 if Path("./app/assets").is_dir():
     app.mount("/", StaticFiles(directory="./app/"), name="static")
     print("FastAPI: assets mounted")
-
-# Chatbot
-@app.post("/chat")
-def chat(message: str) -> dict[str, str]:
-    answer = chat_with_claude(message)
-    return {
-        "answer": answer
-    }
-
-@app.get("/")
-def serve_app():
-    return FileResponse("./app/index.html")

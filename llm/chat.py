@@ -5,9 +5,9 @@ api_key = os.getenv("Anthropic")
 
 client = Anthropic(api_key=api_key)
 
-def chat_with_claude(message: str) -> str:
+def chat_with_claude(message: str) -> list[str]:
     response = client.messages.create(
-        model="claude-sonnet-4-5-20250929",
+        model="claude-haiku-4-5-20251001",
         max_tokens=1000,
         messages=[
             {"role": "user", "content": message}
@@ -19,10 +19,10 @@ def chat_with_claude(message: str) -> str:
             "mcp_servers": [
                 {
                     "type": "url",
-                    "url": "https://magic-8.azurewebsites.net/mcp",
+                    "url": "https://magic-8.azurewebsites.net/mcp/",
                     "name": "magic-8",
                 }
             ]
         }
     )
-    return response.content[0].text
+    return [block.text for block in response.content if block.type == "text"]

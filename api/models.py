@@ -22,3 +22,6 @@ class ContactModel(BaseModel):
     emails: list[EmailModel]
     notes: list[NoteModel]
     tags: list[str]
+
+class ChatMessage(BaseModel):
+    text: str
