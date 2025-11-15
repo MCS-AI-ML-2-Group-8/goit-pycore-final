@@ -1,3 +1,10 @@
+"""
+Command handlers for phone number-related write operations.
+
+This module provides database write operations for phone numbers,
+including creation, update, and deletion.
+"""
+
 from pydantic import Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -22,20 +29,20 @@ class PhoneCommands(DatabaseCommandHandler):
             if not contact:
                 raise ContactNotFound()
 
-        duplicate = session.scalar(select(Phone).where(Phone.phone_number == command.phone_number))
-        if duplicate:
-            raise PhoneAlreadyExists()
+            duplicate = session.scalar(select(Phone).where(Phone.phone_number == command.phone_number))
+            if duplicate:
+                raise PhoneAlreadyExists()
 
-        phone = Phone()
-        phone.phone_number = command.phone_number
+            phone = Phone()
+            phone.phone_number = command.phone_number
 
-        contact.phones.append(phone)
+            contact.phones.append(phone)
 
-        session.add(phone)
-        session.commit()
-        session.refresh(phone)
-        session.expunge(phone)
-        return phone
+            session.add(phone)
+            session.commit()
+            session.refresh(phone)
+            session.expunge(phone)
+            return phone
 
     def add_phone_for_contact_by_name(self, contact_name: str, command: CreatePhone) -> Phone:
         with Session(self.engine) as session:
@@ -43,20 +50,20 @@ class PhoneCommands(DatabaseCommandHandler):
             if not contact:
                 raise ContactNotFound()
 
-        duplicate = session.scalar(select(Phone).where(Phone.phone_number == command.phone_number))
-        if duplicate:
-            raise PhoneAlreadyExists()
+            duplicate = session.scalar(select(Phone).where(Phone.phone_number == command.phone_number))
+            if duplicate:
+                raise PhoneAlreadyExists()
 
-        phone = Phone()
-        phone.phone_number = command.phone_number
+            phone = Phone()
+            phone.phone_number = command.phone_number
 
-        contact.phones.append(phone)
+            contact.phones.append(phone)
 
-        session.add(phone)
-        session.commit()
-        session.refresh(phone)
-        session.expunge(phone)
-        return phone
+            session.add(phone)
+            session.commit()
+            session.refresh(phone)
+            session.expunge(phone)
+            return phone
 
     def update_phone(self, phone_id: int, command: UpdatePhone) -> Phone:
         with Session(self.engine) as session:

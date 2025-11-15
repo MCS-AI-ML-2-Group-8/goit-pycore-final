@@ -1,3 +1,10 @@
+"""
+Base abstractions for the data layer.
+
+This module provides abstract base classes for database-aware components,
+including query handlers, domain commands and corresponding command handlers.
+"""
+
 from pydantic import BaseModel
 from sqlalchemy import Engine
 

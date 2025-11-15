@@ -3,7 +3,7 @@ from data.tag_commands import AddTag, RemoveTag
 from data.note_commands import NoteCommands, CreateNote, UpdateNote
 from data.note_queries import NoteQueries
 from data.exceptions import NoteNotFound
-from api.database import database_engine
+from data.database import database_engine
 from api.models import NoteModel
 import api.mappers as mappers
 

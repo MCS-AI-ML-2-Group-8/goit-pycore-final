@@ -1,3 +1,10 @@
+"""
+Command execution pipeline with exception handling.
+
+This module provides a safe execution wrapper for command handlers,
+catching and translating domain exceptions into user-friendly messages.
+"""
+
 from pydantic import ValidationError
 from cli.abstractions import CommandHandler, CommandResult, Result
 from data.exceptions import AlreadyExistsError, DomainError, NotFoundError

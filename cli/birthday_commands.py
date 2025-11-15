@@ -1,3 +1,10 @@
+"""
+CLI command handlers for birthday management.
+
+This module provides CLI command handlers for managing contact birthdays
+and retrieving upcoming birthday reminders.
+"""
+
 from datetime import datetime
 from sqlalchemy import Engine
 from cli.abstractions import Result
@@ -104,7 +111,7 @@ class BirthdayCommandHandlers:
                 if reminder.contact.date_of_birth is None:
                     raise ValueError(f"Something went wrong. '{reminder.contact.name}' does not have date of birth")
 
-                return f"{reminder.contact.name}: {reminder.bidthday.strftime(date_format)} (Date of Birth: {reminder.contact.date_of_birth.strftime(date_format)})"
+                return f"{reminder.contact.name}: {reminder.birthday.strftime(date_format)} (Date of Birth: {reminder.contact.date_of_birth.strftime(date_format)})"
 
             return Result.SUCCESS_DATA, "\n".join(map(reminder_to_str, reminders))
 

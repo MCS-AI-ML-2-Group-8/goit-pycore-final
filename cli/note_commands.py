@@ -1,3 +1,11 @@
+"""
+CLI command handlers for note operations.
+
+This module provides CLI command handlers for managing notes,
+both standalone and contact-associated, including tag management
+and text search functionality.
+"""
+
 from sqlalchemy import Engine
 from cli.abstractions import Result
 from data.exceptions import ContactNotFound, NoteNotFound, TagNotFound
@@ -14,6 +22,19 @@ class NoteCommandHandlers:
     def __init__(self, engine: Engine):
         self.commands = NoteCommands(engine)
         self.queries = NoteQueries(engine)
+
+    @staticmethod
+    def list_note_texts(engine: Engine) -> list[str]:
+        queries = NoteQueries(engine)
+        notes = [note.text for note in queries.get_notes()]
+        return notes
+
+    @staticmethod
+    def list_note_tags(engine: Engine) -> list[str]:
+        queries = NoteQueries(engine)
+        tags: set[str] = set()
+        tags = { tag.label for note in queries.get_notes() for tag in note.tags }
+        return list(sorted(tags))
 
     def get_commands(self):
         """

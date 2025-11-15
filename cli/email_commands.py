@@ -1,3 +1,10 @@
+"""
+CLI command handlers for email address operations.
+
+This module provides CLI command handlers for managing email addresses
+associated with contacts, including add, edit, and delete operations.
+"""
+
 from sqlalchemy import Engine
 from pydantic import ValidationError
 from cli.abstractions import Result

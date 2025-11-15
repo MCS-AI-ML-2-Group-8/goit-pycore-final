@@ -1,3 +1,12 @@
+"""
+Domain-specific exceptions for the application.
+
+This module defines custom exceptions used throughout the data layer
+to indicate various error conditions such as entities not found or
+duplicate entries.
+"""
+
+
 class DomainError(Exception):
     pass
 

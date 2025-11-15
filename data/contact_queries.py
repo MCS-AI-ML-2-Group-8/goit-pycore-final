@@ -1,3 +1,10 @@
+"""
+Query handlers for contact-related database operations.
+
+This module provides read-only database operations for contacts,
+including retrieval by ID, name, tag, and birthday reminder functionality.
+"""
+
 import calendar
 from datetime import date, timedelta
 from sqlalchemy import select
@@ -84,7 +91,7 @@ class ContactQueries(DatabaseQueryHandler):
 
                 reminder = BirthdayReminder(
                     contact=contact,
-                    bidthday=celebration_day
+                    birthday=celebration_day
                 )
                 reminders.append(reminder)
 

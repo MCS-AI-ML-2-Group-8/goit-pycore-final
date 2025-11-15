@@ -1,3 +1,11 @@
+"""
+Command handlers for note-related write operations.
+
+This module provides database write operations for notes,
+including creation, update, deletion, and tag management.
+Notes can be standalone or associated with contacts.
+"""
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from data.abstractions import DomainCommand, DatabaseCommandHandler

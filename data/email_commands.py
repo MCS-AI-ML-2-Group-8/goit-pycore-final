@@ -1,3 +1,10 @@
+"""
+Command handlers for email address-related write operations.
+
+This module provides database write operations for email addresses,
+including creation, update, and deletion.
+"""
+
 from pydantic import Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -22,20 +29,20 @@ class EmailCommands(DatabaseCommandHandler):
             if not contact:
                 raise ContactNotFound()
 
-        duplicate = session.scalar(select(Email).where(Email.email_address == command.email_address))
-        if duplicate:
-            raise EmailAlreadyExists()
+            duplicate = session.scalar(select(Email).where(Email.email_address == command.email_address))
+            if duplicate:
+                raise EmailAlreadyExists()
 
-        email = Email()
-        email.email_address = command.email_address
+            email = Email()
+            email.email_address = command.email_address
 
-        contact.emails.append(email)
+            contact.emails.append(email)
 
-        session.add(email)
-        session.commit()
-        session.refresh(email)
-        session.expunge(email)
-        return email
+            session.add(email)
+            session.commit()
+            session.refresh(email)
+            session.expunge(email)
+            return email
 
     def add_email_for_contact_by_name(self, contact_name: str, command: CreateEmail) -> Email:
         with Session(self.engine) as session:
@@ -43,20 +50,20 @@ class EmailCommands(DatabaseCommandHandler):
             if not contact:
                 raise ContactNotFound()
 
-        duplicate = session.scalar(select(Email).where(Email.email_address == command.email_address))
-        if duplicate:
-            raise EmailAlreadyExists()
+            duplicate = session.scalar(select(Email).where(Email.email_address == command.email_address))
+            if duplicate:
+                raise EmailAlreadyExists()
 
-        email = Email()
-        email.email_address = command.email_address
+            email = Email()
+            email.email_address = command.email_address
 
-        contact.emails.append(email)
+            contact.emails.append(email)
 
-        session.add(email)
-        session.commit()
-        session.refresh(email)
-        session.expunge(email)
-        return email
+            session.add(email)
+            session.commit()
+            session.refresh(email)
+            session.expunge(email)
+            return email
 
     def update_email(self, email_id: int, command: UpdateEmail) -> Email:
         with Session(self.engine) as session:

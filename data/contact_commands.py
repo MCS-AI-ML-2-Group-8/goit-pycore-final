@@ -1,3 +1,10 @@
+"""
+Command handlers for contact-related write operations.
+
+This module provides database write operations for contacts,
+including creation, update, deletion, and tag management.
+"""
+
 from datetime import date
 from pydantic import Field
 from sqlalchemy import select
@@ -108,7 +115,7 @@ class ContactCommands(DatabaseCommandHandler):
             session.delete(contact)
             session.commit()
 
-    def add_tag_to_contact(self, contact_id: int, command: AddTag) -> None:
+    def add_tag_to_contact(self, contact_id: int, command: AddTag) -> Contact:
         with Session(self.engine) as session:
             contact = session.get(Contact, contact_id)
             if not contact:
@@ -121,13 +128,13 @@ class ContactCommands(DatabaseCommandHandler):
                 session.add(tag)
 
             if tag in contact.tags:
-                return contact # return the contact 
+                return contact
 
             contact.tags.append(tag)
             session.add(contact)
             session.commit()
-            session.refresh(contact) # refresh contact 
-            return contact # return the contact 
+            session.refresh(contact)
+            return contact
 
     def add_tag_to_contact_by_name(self, contact_name: str, command: AddTag) -> None:
         with Session(self.engine) as session:
@@ -155,7 +162,7 @@ class ContactCommands(DatabaseCommandHandler):
                 raise ContactNotFound()
 
             tag = session.scalar(select(Tag).where(
-                Tag.contacts.any(Contact.contact_id == contact.contact_id), 
+                Tag.contacts.any(Contact.contact_id == contact.contact_id),
                 Tag.label == command.label))
 
             if not tag:

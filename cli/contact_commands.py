@@ -1,3 +1,10 @@
+"""
+CLI command handlers for contact operations.
+
+This module provides CLI command handlers for managing contacts,
+including CRUD operations and tag management.
+"""
+
 from pydantic import ValidationError
 from sqlalchemy import Engine
 from cli.abstractions import Result

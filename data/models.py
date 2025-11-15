@@ -1,3 +1,10 @@
+"""
+SQLAlchemy ORM models for the contact management system.
+
+This module defines the database schema including Contact, Phone, Email,
+Note, and Tag entities, along with their relationships and association tables.
+"""
+
 from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
@@ -107,4 +114,4 @@ class NoteTag(Base):
 @dataclass
 class BirthdayReminder:
     contact: Contact
-    bidthday: date
+    birthday: date
