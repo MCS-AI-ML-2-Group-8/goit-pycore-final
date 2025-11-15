@@ -1,0 +1,118 @@
+
+ ▐▛███▜▌   Claude Code v2.0.37
+▝▜█████▛▘  Haiku 4.5 · Claude Pro
+  ▘▘ ▝▝    C:\Homework\goit-pycore-final
+
+> Hey can you get contacts?
+
+● I'll retrieve all contacts for you.
+  ⎿  {
+       "result": []
+     }
+
+● There are currently no contacts in the system. Would you like to:
+  1. Create a new contact?
+  2. Search for a specific contact?
+  3. Do something else?
+
+> Add me as contact (Andrii, 0934681185)
+
+● magic-8 - create_contact (MCP)(name: "Andrii", phone_number: "0934681185")
+  ⎿  {
+       "id": 1,
+       "name": "Andrii",
+     … +11 lines (ctrl+o to expand)
+
+● Done! I've added you as a contact:
+  - Name: Andrii
+  - Phone: 0934681185
+
+> Now get contacts
+  ⎿  {
+       "result": [
+         {
+     … +15 lines (ctrl+o to expand)
+
+● Here are your contacts:
+
+  1. Andrii
+    - Phone: 0934681185
+    - Date of Birth: Not set
+    - Emails: None
+    - Notes: None
+    - Tags: None
+
+> Would be nice to add my birthday, it's Nov 18
+
+● magic-8 - update_contact (MCP)(contact_name: "Andrii", new_name: "Andrii", date_of_birth: "1900-11-18")
+  ⎿  {
+       "id": 1,
+       "name": "Andrii",
+     … +11 lines (ctrl+o to expand)
+
+● Done! I've updated your contact with your birthday on November 18th. Note that since you didn't specify a year, I set it to 1900 as a
+  placeholder. If you'd like to update it with the correct year, just let me know!
+
+> Show my contact
+
+● magic-8 - get_contact_by_name (MCP)(contact_name: "Andrii")
+  ⎿  {
+       "result": {
+         "id": 1,
+     … +13 lines (ctrl+o to expand)
+
+● Here's your contact:
+
+  Andrii
+  - Phone: 0934681185
+  - Date of Birth: November 18
+  - Emails: None
+  - Notes: None
+  - Tags: None
+
+> Oh, it's 1990
+
+● magic-8 - update_contact (MCP)(contact_name: "Andrii", new_name: "Andrii", date_of_birth: "1990-11-18")
+  ⎿  {
+       "id": 1,
+       "name": "Andrii",
+     … +11 lines (ctrl+o to expand)
+
+● Got it! I've updated your birthday to November 18, 1990.
+
+> Place a note to order groceries on Sunday
+
+● magic-8 - create_note (MCP)(content: "Order groceries on Sunday")
+  ⎿  {
+       "id": 1,
+       "text": "Order groceries on Sunday",
+     … +2 lines (ctrl+o to expand)
+
+● Done! I've created a note: "Order groceries on Sunday"
+
+> Maybe add some tag to organize
+
+● What tag would you like to add to the note? For example, something like "shopping", "todo", "reminders", or something else?
+
+> shopping is fine
+
+● magic-8 - add_tag_to_note_by_text (MCP)(text_fragment: "Order groceries on Sunday", tag: "shopping")
+  ⎿  {
+       "text_fragment": "Order groceries on Sunday",
+       "tag": "shopping",
+     … +2 lines (ctrl+o to expand)
+
+● Perfect! I've added the "shopping" tag to your note "Order groceries on Sunday".
+
+> Show all shopping notes
+
+● magic-8 - get_notes (MCP)(tag: "shopping")
+  ⎿  {
+       "result": [
+         {
+     … +8 lines (ctrl+o to expand)
+
+● Here are your shopping notes:
+
+  1. Order groceries on Sunday
+    - Tags: shopping

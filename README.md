@@ -42,7 +42,17 @@ python main.py --api
 ```
 
 API is available at `http://localhost:8000`
+
 MCP server is available at `http://localhost:8000/mcp`, transport SSE
+
+## Setup MCP in Claude Code
+
+```bash
+claude mcp add --transport sse magic-8 https://magic-8.azurewebsites.net/mcp/ # Hosted
+claude mcp add --transport sse magic-8 http://localhost:8000/mcp/ # Local
+claude mcp list # Verify MCP installed correctly
+claude --model haiku # Haiku is recommended model
+```
 
 ## Available Commands
 
