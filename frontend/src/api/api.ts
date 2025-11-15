@@ -1,11 +1,11 @@
 import axios from "axios";
 
-const API_URL = "http://0.0.0.0:8000"; 
+const API_URL = "https://magic-8.azurewebsites.net/";
 
 export const getContacts = async (name?: string) => {
   try {
     const url = name
-      ? `${API_URL}/contacts?query=${name}` 
+      ? `${API_URL}/contacts?query=${name}`
       : `${API_URL}/contacts`;
     const response = await axios.get(url);
     return response.data;
@@ -34,7 +34,7 @@ export const updatePhone = async (
     const response = await axios.put(
       `${API_URL}/contacts/${contactId}/phones/${phoneId}`,
       {
-        phone_number: newPhoneNumber, 
+        phone_number: newPhoneNumber,
       }
     );
     return response.data;
@@ -83,3 +83,8 @@ export const updateContact = async (
     throw error;
   }
 };
+
+export const sendMesageToChat = async (text: string) => {
+  const response = await axios.post(`${API_URL}/chat`, { text });
+  return response.data as string[];
+}

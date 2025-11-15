@@ -7,6 +7,7 @@ import { addContactCommand } from "./contacts/addContact";
 import { deleteContactCommand } from "./contacts/deleteContact";
 import { updateContactCommand } from "./contacts/updateContact";
 import { helpCommand } from "./help";
+import { sendMesage } from "./chat";
 
 export async function processCommand(currentInput: string) {
   const input = currentInput.trim().toLowerCase();
@@ -68,6 +69,8 @@ export async function processCommand(currentInput: string) {
     const updateMessages = await updateContactCommand(currentInput);
     return updateMessages;
   }
+
+  return await sendMesage(currentInput);
 
   // Otherwise
   const botMessage = {
