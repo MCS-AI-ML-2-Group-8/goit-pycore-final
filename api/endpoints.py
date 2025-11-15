@@ -43,9 +43,6 @@ def chat(message: str) -> dict[str, str]:
         "answer": answer
     }
 
-@app.get("/")
+@app.get("/", include_in_schema=False)
 def serve_app():
-    if Path("./app/index.html").exists():
-        return FileResponse("./app/index.html")
-    else:
-        raise HTTPException(404, "App not found")
+    return FileResponse("./app/index.html")
