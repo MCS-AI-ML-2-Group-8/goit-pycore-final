@@ -1,7 +1,13 @@
 @import "tailwindcss";
 
 #root {
-    background-color: pink;
+    position: relative;
+    background-image: 
+        linear-gradient(to bottom right, rgba(45, 2, 110, 0.35),rgba(17, 1, 9, 0.35)),
+        url('/bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     /* width: 100vh; */
     height: 100vh;
     padding: 2rem;
