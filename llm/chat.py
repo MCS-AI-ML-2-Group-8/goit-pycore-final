@@ -1,17 +1,21 @@
 import os
+from collections.abc import Iterable
 from anthropic import Anthropic
+from anthropic.types import MessageParam
 
 api_key = os.getenv("Anthropic")
 
 client = Anthropic(api_key=api_key)
 
-def chat_with_claude(message: str) -> list[str]:
+def get_response_for_message(message_text: str) -> list[str]:
+    message: MessageParam = {"role": "user", "content": message_text}
+    return get_response_for_messages([message])
+
+def get_response_for_messages(messages: Iterable[MessageParam]) -> list[str]:
     response = client.messages.create(
         model="claude-haiku-4-5-20251001",
         max_tokens=1000,
-        messages=[
-            {"role": "user", "content": message}
-        ],
+        messages=messages,
         extra_headers={
             "anthropic-beta": "mcp-client-2025-04-04"
         },
