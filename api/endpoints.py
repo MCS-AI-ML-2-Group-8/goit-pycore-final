@@ -1,5 +1,5 @@
 from pathlib import Path
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -43,6 +43,6 @@ def chat(message: str) -> dict[str, str]:
         "answer": answer
     }
 
-@app.get("/", include_in_schema=False)
+@app.get("/")
 def serve_app():
     return FileResponse("./app/index.html")

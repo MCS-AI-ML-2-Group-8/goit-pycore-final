@@ -104,7 +104,7 @@ def update_contact(contact_id: int, command: UpdateContact) -> ContactModel:
 
 # DELETE /contacts/{contact_id} -> Delete a contact
 @router.delete("/{contact_id}")
-def delete_contact(contact_id: int) -> None:
+def delete_contact(contact_id: int) -> dict[str, str]:
     try:
         commands = ContactCommands(database_engine)
         commands.delete_contact(contact_id)
@@ -115,7 +115,7 @@ def delete_contact(contact_id: int) -> None:
 
 # DELETE /contacts/{contact_id}/tags -> delete tag from contact
 @router.delete("/{contact_id}/tags")
-def delete_tag_from_contact(contact_id: int, command: RemoveTag) -> None:
+def delete_tag_from_contact(contact_id: int, command: RemoveTag) -> dict[str, str]:
     try:
         commands = ContactCommands(database_engine)
         commands.remove_tag_from_contact(contact_id, command)
@@ -174,7 +174,7 @@ def update_phone(contact_id: int, phone_id: int,  command: UpdatePhone):
 
 # DELETE /contacts/{contact_id}/phones/{phone_id} -> Delete a phone
 @router.delete("/{contact_id}/phones/{phone_id}")
-def delete_phone(contact_id: int, phone_id: int) -> None:
+def delete_phone(contact_id: int, phone_id: int) -> dict[str, str]:
     contact_queries = ContactQueries(database_engine)
     contact = contact_queries.get_contact_by_id(contact_id)
 
