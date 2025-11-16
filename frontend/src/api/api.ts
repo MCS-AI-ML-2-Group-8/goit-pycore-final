@@ -89,6 +89,11 @@ export const sendMesageToChat = async (text: string) => {
   return response.data as string[];
 };
 
+export const sendMesageToThread = async (text: string, threadId: string) => {
+  const response = await axios.post(`${API_URL}/chat/${threadId}`, { text });
+  return response.data as string[];
+};
+
 
 export const updateEmail = async (
   contactId: number,

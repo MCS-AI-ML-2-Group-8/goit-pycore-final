@@ -9,7 +9,7 @@ import { updateContactCommand } from "./contacts/updateContact";
 import { helpCommand } from "./help";
 import { sendMesage } from "./chat";
 
-export async function processCommand(currentInput: string) {
+export async function processCommand(currentInput: string, threadId: string) {
   const input = currentInput.trim().toLowerCase();
 
   const simulateTyping = () =>
@@ -78,6 +78,6 @@ export async function processCommand(currentInput: string) {
     await simulateTyping();
     return updateMessages;
   } else {
-    return await sendMesage(currentInput);
+    return await sendMesage(currentInput, threadId);
   }
 }
