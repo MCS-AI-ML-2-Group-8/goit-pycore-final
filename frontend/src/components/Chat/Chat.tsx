@@ -8,6 +8,7 @@ import { processCommand } from "../../commands/commandProcessor";
 export function Chat() {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [threadId] = useState<string>(crypto.randomUUID());
 
   const [messages, setMessages] = useState<any[]>([
     {
@@ -39,7 +40,7 @@ export function Chat() {
     //   setTimeout(resolve, 1500 + Math.random() * 1000)
     // );
 
-    const botMessages = await processCommand(currentInput);
+    const botMessages = await processCommand(currentInput, threadId);
     setIsTyping(false);
 
     setMessages((prev) => [...prev, ...botMessages]);
@@ -117,7 +118,7 @@ export function Chat() {
             <input
               type="text"
               className="flex-1 bg-transparent text-white px-4 focus:outline-none"
-              placeholder="Type 'get-contacts'..."
+              placeholder="Type 'get contacts' or 'help'"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyUp={(e) => e.key === "Enter" && handleSend()}

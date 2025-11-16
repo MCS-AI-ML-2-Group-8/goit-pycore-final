@@ -1,7 +1,7 @@
-import { sendMesageToChat } from "../api/api"
+import { sendMesageToThread } from "../api/api"
 
-export const sendMesage = async (message: string) => {
-  const messages = await sendMesageToChat(message);
+export const sendMesage = async (message: string, threadId: string) => {
+  const messages = await sendMesageToThread(message, threadId);
   return messages.map(text => (
     {
       type: "bot",

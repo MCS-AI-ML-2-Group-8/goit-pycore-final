@@ -2,14 +2,14 @@ import {
   getAllContactsCommand,
   getOneContactByIdCommand,
 } from "./contacts/getContacts";
-// import { updatePhoneCommand } from "./phones/updatePhone";
+
 import { addContactCommand } from "./contacts/addContact";
 import { deleteContactCommand } from "./contacts/deleteContact";
 import { updateContactCommand } from "./contacts/updateContact";
 import { helpCommand } from "./help";
 import { sendMesage } from "./chat";
 
-export async function processCommand(currentInput: string) {
+export async function processCommand(currentInput: string, threadId: string) {
   const input = currentInput.trim().toLowerCase();
 
   const simulateTyping = () =>
@@ -43,7 +43,7 @@ export async function processCommand(currentInput: string) {
   }
 
   // Command: get-contacts
-  else if (input === "get-contacts") {
+  else if (input === "get contacts") {
     const botMessage = await getAllContactsCommand();
     return botMessage;
   } else if (currentInput.toLowerCase().startsWith("get contact")) {
@@ -51,12 +51,6 @@ export async function processCommand(currentInput: string) {
     await simulateTyping();
     return botMessage;
   }
-
-  //   // Command: update phone for [name] from [old phone] to [new phone]
-  //   else if (currentInput.toLowerCase().startsWith("update phone for")) {
-  //     const updateMessages = await updatePhoneCommand(currentInput);
-  //     return updateMessages;
-  //   }
 
   // Command: add contact [name] [phone] [birth_date]
   else if (currentInput.toLowerCase().startsWith("add contact")) {
@@ -78,6 +72,6 @@ export async function processCommand(currentInput: string) {
     await simulateTyping();
     return updateMessages;
   } else {
-    return await sendMesage(currentInput);
+    return await sendMesage(currentInput, threadId);
   }
 }
