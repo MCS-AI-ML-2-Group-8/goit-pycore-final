@@ -1,5 +1,5 @@
 [project]
-name = "magic-8"
+name = "magic8"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -15,6 +15,9 @@ dependencies = [
     "sqlalchemy>=2.0.44",
 ]
 
+[project.scripts]
+magic8 = "main:main"
+
 [tool.basedpyright]
 reportCallInDefaultInitializer = false
 
@@ -26,7 +29,5 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["api", "cli", "llm", "data", "app"]
-
-[tool.setuptools.package-data]
-app = ["*.html", "*.svg", "assets/*"]
+packages = ["api", "cli", "llm", "data"]
+py-modules = ["main"]

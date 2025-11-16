@@ -54,6 +54,17 @@ claude mcp list # Verify MCP installed correctly
 claude --model haiku # Haiku is recommended model
 ```
 
+## Build package
+
+```
+uv build
+```
+
+To install package, distribute wheel file `dist\magic8-0.1.0-py3-none-any.whl` to user,
+then install `uv pip install magic8-0.1.0-py3-none-any.whl`
+
+Then use `magic8` command to run application
+
 ## Available Commands
 
 ### Contacts

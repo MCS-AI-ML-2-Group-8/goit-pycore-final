@@ -434,33 +434,6 @@ wheels = [
 ]
 
 [[package]]
-name = "goit-pycore-final"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "anthropic" },
-    { name = "colorama" },
-    { name = "fastapi", extra = ["standard"] },
-    { name = "fastmcp" },
-    { name = "prompt-toolkit" },
-    { name = "pydantic" },
-    { name = "pytest" },
-    { name = "sqlalchemy" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "anthropic", specifier = ">=0.73.0" },
-    { name = "colorama", specifier = ">=0.4.6" },
-    { name = "fastapi", extras = ["standard"], specifier = ">=0.120.4" },
-    { name = "fastmcp", specifier = "==2.13.0.2" },
-    { name = "prompt-toolkit", specifier = ">=3.0.52" },
-    { name = "pydantic", specifier = ">=2.12.3" },
-    { name = "pytest", specifier = ">=8.4.2" },
-    { name = "sqlalchemy", specifier = ">=2.0.44" },
-]
-
-[[package]]
 name = "greenlet"
 version = "3.2.4"
 source = { registry = "https://pypi.org/simple" }
@@ -736,6 +709,33 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/70/09/d904a6e96f76ff214be59e7aa6ef7190008f52a0ab6689760a98de0bf37d/keyring-25.6.0.tar.gz", hash = "sha256:0b39998aa941431eb3d9b0d4b2460bc773b9df6fed7621c2dfb291a7e0187a66", size = 62750, upload-time = "2024-12-25T15:26:45.782Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d3/32/da7f44bcb1105d3e88a0b74ebdca50c59121d2ddf71c9e34ba47df7f3a56/keyring-25.6.0-py3-none-any.whl", hash = "sha256:552a3f7af126ece7ed5c89753650eec89c7eaae8617d0aa4d9ad2b75111266bd", size = 39085, upload-time = "2024-12-25T15:26:44.377Z" },
+]
+
+[[package]]
+name = "magic8"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "anthropic" },
+    { name = "colorama" },
+    { name = "fastapi", extra = ["standard"] },
+    { name = "fastmcp" },
+    { name = "prompt-toolkit" },
+    { name = "pydantic" },
+    { name = "pytest" },
+    { name = "sqlalchemy" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "anthropic", specifier = ">=0.73.0" },
+    { name = "colorama", specifier = ">=0.4.6" },
+    { name = "fastapi", extras = ["standard"], specifier = ">=0.120.4" },
+    { name = "fastmcp", specifier = "==2.13.0.2" },
+    { name = "prompt-toolkit", specifier = ">=3.0.52" },
+    { name = "pydantic", specifier = ">=2.12.3" },
+    { name = "pytest", specifier = ">=8.4.2" },
+    { name = "sqlalchemy", specifier = ">=2.0.44" },
 ]
 
 [[package]]
