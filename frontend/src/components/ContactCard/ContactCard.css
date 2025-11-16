@@ -5,7 +5,7 @@
     /* rounded-xl */
     padding: 1rem;
     margin-bottom: 1rem;
-    max-width: 400px;
+    max-width: 450px;
     border: 1px solid #4a5568;
     /* gray-700 */
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -13,8 +13,9 @@
 
 .card-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    /* justify-content: space-between; */
+    /* align-items: center; */
     border-bottom: 1px solid #4a5568;
     /* gray-700 */
     padding-bottom: 0.75rem;
@@ -23,16 +24,12 @@
 
 .contact-name {
     font-size: 1.25rem;
-    /* text-xl */
     font-weight: bold;
-    color: #ffffff;
 }
 
 .contact-birthday {
     font-size: 0.875rem;
-    /* text-sm */
     color: #a0aec0;
-    /* gray-400 */
 }
 
 .accordion-icon {
@@ -43,24 +40,10 @@
     transform: rotate(180deg);
 }
 
-.card-body {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.5s ease-out;
-    padding: 0 1rem;
-}
-
-.card-body.open {
-    max-height: 1000px;
-    /* Adjust as needed */
-    padding: 1rem;
-    transition: max-height 0.5s ease-in;
-}
 
 .contact-section h4 {
     font-weight: 600;
     color: #cbd5e0;
-    /* gray-300 */
     margin-bottom: 0.25rem;
 }
 
@@ -68,7 +51,6 @@
     list-style-type: none;
     padding-left: 0;
     color: #e2e8f0;
-    /* gray-200 */
 }
 
 .contact-tags {
@@ -80,19 +62,14 @@
 
 .tag {
     background-color: #4a5568;
-    /* gray-700 */
     color: #e2e8f0;
-    /* gray-200 */
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
-    /* rounded-full */
     font-size: 0.75rem;
-    /* text-xs */
     font-weight: 500;
 }
 
 
-/* --- НОВЫЕ СТИЛИ ДЛЯ ЗАМЕТОК --- */
 .notes-list {
     display: flex;
     flex-direction: column;
@@ -103,19 +80,11 @@
 
 .note-item {
     background-color: #1a202c;
-    /* gray-900 */
     padding: 0.75rem;
     border-radius: 0.5rem;
-    /* rounded-lg */
-    border-left: 4px solid #4299e1;
-    /* blue-500 */
+    border-left: 4px solid #9824d3;
 }
 
-.note-item p {
-    margin: 0 0 0.5rem 0;
-    color: #e2e8f0;
-    /* gray-200 */
-}
 
 .note-tags {
     display: flex;
@@ -125,7 +94,21 @@
 
 .note-tag {
     background-color: #2d3748;
-    /* gray-800 */
     font-size: 0.7rem;
     font-style: italic;
+}
+
+.edit-container {
+    position: relative;
+}
+
+.edit-editor, .name-display {
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.edit-editor.visible, .name-display.visible {
+    opacity: 1;
+    transform: scale(1);
 }
