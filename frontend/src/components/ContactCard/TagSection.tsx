@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { addContactTag, deleteContactTag } from "../../api/api";
 import { RxCross1 } from "react-icons/rx";
-import { IoAddCircleOutline } from "react-icons/io5";
 import TagInput from "../Inputs/TagInput";
 import AddButton from "../Buttons/AddButton";
 

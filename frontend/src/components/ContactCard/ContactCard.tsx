@@ -1,109 +1,128 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./ContactCard.css";
+import { FaBirthdayCake } from "react-icons/fa";
+import { LuArrowDownWideNarrow } from "react-icons/lu";
+import EditButton from "../Buttons/EditButton";
+import { updateContact } from "../../api/api";
+import EditableInput from "../Inputs/EditInput";
+import PhoneSection from "./PhoneSection";
+import EmailSection from "./EmailSection";
+import NoteSection from "./NoteSection";
+import TagSection from "./TagSection";
 
-interface Email {
-  id: number;
-  emailAddress: string;
-}
 
-interface Phone {
-  id: number;
-  phoneNumber: string;
-}
-
-interface Note {
-  id: number;
-  text: string;
-  tags: string[];
-}
-
-interface Contact {
-  id: number;
-  name: string;
-  dateOfBirth: string;
-  emails: Email[];
-  phones: Phone[];
-  tags: string[];
-  notes: Note[];
-}
-
-const ContactCard = ({ contact }: { contact: Contact }) => {
+const ContactCard = ({ contact }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newName, setNewName] = useState(contact.name);
+  const [localContact, setLocalContact] = useState(contact);
 
+  useEffect(() => {
+    setLocalContact(contact);
+    setNewName(contact.name);
+  }, [contact]);
+
+  // open cart
   const toggleAccordion = () => {
     setIsOpen(!isOpen);
   };
 
-  if (!contact) {
+  //  edit control
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  //  contact change
+  const handleSave = async () => {
+    try {
+      await updateContact(contact.id, {
+        name: newName,
+        date_of_birth: contact.dateOfBirth || null,
+      });
+      setLocalContact({ ...localContact, name: newName });
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error updating contact:", error);
+    }
+  };
+
+  const handleCancel = () => {
+    setNewName(contact.name);
+    setIsEditing(false);
+  };
+
+  if (!localContact) {
     return null;
   }
 
   return (
     <div className="contact-card">
-      <div className="card-header" onClick={toggleAccordion}>
-        <h3 className="contact-name">{contact.name}</h3>
-        <div className="header-right">
-          {contact.dateOfBirth && (
-            <span className="contact-birthday">
-              🎂 {new Date(contact.dateOfBirth).toLocaleDateString()}
-            </span>
+      <div className="card-header">
+        <div className="flex justify-between items-center">
+          {isEditing ? (
+            <EditableInput
+              value={newName}
+              onChange={setNewName}
+              onSave={handleSave}
+              onCancel={handleCancel}
+              className={"opacity-100"}
+            />
+          ) : (
+            <h3 className="text-lg font-bold flex items-center gap-0.5 text-indigo-100">
+              {localContact.name}
+              <EditButton onAction={handleEdit} />
+            </h3>
           )}
-          <span className={`accordion-icon ${isOpen ? "open" : ""}`}> ↕️ </span>
+          <div className="flex items-center gap-3">
+            {localContact.dateOfBirth && (
+              <span className="flex items-center gap-0.5 text-indigo-100 font-light text-sm">
+                <FaBirthdayCake size={17} className="text-purple-400" />{" "}
+                {new Date(localContact.dateOfBirth).toLocaleDateString()}
+              </span>
+            )}
+
+            <LuArrowDownWideNarrow
+              onClick={toggleAccordion}
+              size={25}
+              className={`rotate-0 transition-all ease-in duration-500 hover:text-pink-500 text-indigo-100 ${
+                isOpen ? "rotate-180 text-pink-500" : ""
+              }`}
+            />
+          </div>
         </div>
+        {localContact.tags && (
+          <TagSection
+            contactId={contact.id}
+            tags={localContact.tags}
+            onUpdate={setLocalContact}
+          />
+        )}
       </div>
-      <div className={`card-body ${isOpen ? "open" : ""}`}>
-        {contact.emails && contact.emails.length > 0 && (
-          <div className="contact-section">
-            <h4>Emails:</h4>
-            <ul>
-              {contact.emails.map((email) => (
-                <li key={email.id}>{email.emailAddress}</li>
-              ))}
-            </ul>
-          </div>
+
+      <div
+        className={`transition-(height) ease-in duration-500 overflow-hidden ${
+          isOpen ? "max-h-200" : "max-h-0 "
+        }`}>
+        {localContact.emails && (
+          <EmailSection
+            contactId={contact.id}
+            emails={localContact.emails}
+            onUpdate={setLocalContact}
+          />
         )}
-        {contact.phones && contact.phones.length > 0 && (
-          <div className="contact-section">
-            <h4>Phones:</h4>
-            <ul>
-              {contact.phones.map((phone) => (
-                <li key={phone.id}>{phone.phoneNumber}</li>
-              ))}
-            </ul>
-          </div>
+        {localContact.phones && (
+          <PhoneSection
+            contactId={contact.id}
+            phones={localContact.phones}
+            onUpdate={setLocalContact}
+          />
         )}
-        {contact.tags && contact.tags.length > 0 && (
-          <div className="contact-section">
-            <h4>Tags:</h4>
-            <div className="contact-tags">
-              {contact.tags.map((tag, i) => (
-                <span key={i} className="tag">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-        {contact.notes && contact.notes.length > 0 && (
-          <div className="contact-section">
-            <h4>Notes:</h4>
-            <ul className="notes-list">
-              {contact.notes.map((note) => (
-                <li key={note.id} className="note-item">
-                  <p>{note.text}</p>
-                  {note.tags && note.tags.length > 0 && (
-                    <div className="note-tags">
-                      {note.tags.map((tag, i) => (
-                        <span key={i} className="tag note-tag">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
+        {localContact.notes && (
+          <NoteSection
+            contactId={contact.id}
+            notes={localContact.notes}
+            onUpdate={setLocalContact}
+          />
         )}
       </div>
     </div>
