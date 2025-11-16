@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import FloatingIcons from "./FloatingIcons";
 import ContactCard from "../ContactCard/ContactCard";
+import ReactMarkdown from "react-markdown";
 
 import { processCommand } from "../../commands/commandProcessor";
 
@@ -76,8 +77,16 @@ export function Chat() {
                     msg.type === "user"
                       ? "bg-linear-to-r from-fuchsia-500 to-fuchsia-600 text-white"
                       : "bg-linear-to-r from-purple-300 to-indigo-200"
-                  } ${msg.type === "bot" ? "whitespace-pre-line" : ""}`}>
-                  {msg.text}
+                  }`}>
+                  {msg.type === "bot" ? (
+                    <div className="prose prose-sm max-w-none">
+                      <ReactMarkdown>
+                        {msg.text}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    msg.text
+                  )}
                 </div>
               )}
             </div>
