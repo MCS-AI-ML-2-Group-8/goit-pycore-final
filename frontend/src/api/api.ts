@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://magic-8.azurewebsites.net/";
+const API_URL = "https://magic-8.azurewebsites.net";
 
 export const getContacts = async (name?: string) => {
   try {
@@ -87,4 +87,129 @@ export const updateContact = async (
 export const sendMesageToChat = async (text: string) => {
   const response = await axios.post(`${API_URL}/chat`, { text });
   return response.data as string[];
-}
+};
+
+
+export const updateEmail = async (
+  contactId: number,
+  emailId: number,
+  newEmailAddress: string
+) => {
+  try {
+    const response = await axios.put(
+      `${API_URL}/contacts/${contactId}/emails/${emailId}`,
+      {
+        email_address: newEmailAddress,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating email:", error);
+    throw error;
+  }
+};
+
+export const addEmail = async (contactId: number, emailAddress: string) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/contacts/${contactId}/emails`,
+      {
+        email_address: emailAddress,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error adding email:", error);
+    throw error;
+  }
+};
+
+export const addPhone = async (contactId: number, phoneNumber: string) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/contacts/${contactId}/phones`,
+      {
+        phone_number: phoneNumber,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error adding phone:", error);
+    throw error;
+  }
+};
+
+export const updateNote = async (noteId: number, newText: string) => {
+  try {
+    const data: any = {
+      text: newText,
+    };
+    console.log("Data:", data);
+    const response = await axios.put(`${API_URL}/notes/${noteId}`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating note:", error);
+    throw error;
+  }
+};
+
+export const addNote = async (contactId: number, text: string) => {
+  try {
+    const data: any = {
+      text: text,
+    };
+
+    const response = await axios.post(
+      `${API_URL}/contacts/${contactId}/notes`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error adding note:", error);
+    throw error;
+  }
+};
+
+export const addContactTag = async (contactId: number, tag: string) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/contacts/${contactId}/tags`,
+      {
+        label: tag,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error adding tag:", error);
+    throw error;
+  }
+};
+
+export const deleteContactTag = async (contactId: number, tag: string) => {
+  try {
+    const response = await axios.delete(`${API_URL}/contacts/${contactId}/tags`, {
+      data: {
+        label: tag
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting tag:", error);
+    throw error;
+  }
+};
+
+export const addTagToNote = async ( noteId: number, tag: string) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/notes/${noteId}/tags`,
+      {
+        label: tag,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error adding tag to note:", error);
+    throw error;
+  }
+};
