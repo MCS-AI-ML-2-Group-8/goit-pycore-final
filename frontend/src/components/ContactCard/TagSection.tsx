@@ -66,7 +66,7 @@ const TagSection = ({ contactId, tags, onUpdate }) => {
             onCancel={handleCancelNewTag}
           />
         ) : (
-          <AddButton onAction={handleAddTag} />
+          <AddButton onAction={handleAddTag} size={18}/>
         )}
       </div>
     </div>
