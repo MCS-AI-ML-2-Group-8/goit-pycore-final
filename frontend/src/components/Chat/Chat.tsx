@@ -39,7 +39,7 @@ export function Chat() {
     //   setTimeout(resolve, 1500 + Math.random() * 1000)
     // );
 
-    const botMessages = await processCommand(currentInput, setIsTyping);
+    const botMessages = await processCommand(currentInput);
     setIsTyping(false);
 
     setMessages((prev) => [...prev, ...botMessages]);

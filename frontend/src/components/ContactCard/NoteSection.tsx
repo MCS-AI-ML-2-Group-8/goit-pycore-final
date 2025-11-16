@@ -5,7 +5,6 @@ import { addNote, updateNote, addTagToNote } from "../../api/api";
 import EditableInput from "../Inputs/EditInput";
 import AddButton from "../Buttons/AddButton";
 import TagInput from "../Inputs/TagInput";
-import type { sign } from "crypto";
 
 interface Note {
   id: number;
