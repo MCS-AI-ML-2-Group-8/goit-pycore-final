@@ -19,12 +19,38 @@
 .custom-blur {
     filter: drop-shadow(0 0 12px rgba(246, 138, 232, 0.7));
 }
-
 li {
-    margin-left: 1rem;
+    margin-left: 1.5rem;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    list-style-type: initial;
+}
+p {
+    margin: 10px 0;
+}
+h2 {
+    font-size: 19px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+h2 {
+    font-size: 17px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+h3 {
+    font-size: 15px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+code {
+    background: #ffffff5c;
+    padding: 3px;
+    border-radius: 3px;
+    margin: 3px 0;
 }
 
 /* input:focus {
-    outline: none; 
-    
+    outline: none;
+
 } */

@@ -118,7 +118,7 @@ export function Chat() {
             <input
               type="text"
               className="flex-1 bg-transparent text-white px-4 focus:outline-none"
-              placeholder="Type 'get-contacts'..."
+              placeholder="Type 'get contacts' or 'help'"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyUp={(e) => e.key === "Enter" && handleSend()}

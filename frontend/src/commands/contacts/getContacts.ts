@@ -14,9 +14,7 @@ export const getAllContactsCommand = async () => {
 export const getOneContactByIdCommand = async (currentInput: string) => {
   try {
     const parts = currentInput.split(" ");
-    const contactNameIdx = parts.indexOf("contact") + 1;
-    const contactName = parts[contactNameIdx];
-
+    const contactName = parts.slice(2).join(" ");
     if (!contactName) {
       return [
         {
