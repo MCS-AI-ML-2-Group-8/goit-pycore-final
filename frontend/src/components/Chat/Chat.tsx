@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import FloatingIcons from "./FloatingIcons";
 import ContactCard from "../ContactCard/ContactCard";
+import ReactMarkdown from "react-markdown";
 
 import { processCommand } from "../../commands/commandProcessor";
 
 export function Chat() {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+
   const [messages, setMessages] = useState<any[]>([
     {
       type: "bot",
@@ -33,23 +35,21 @@ export function Chat() {
 
     //   simulate typing
     setIsTyping(true);
-    await new Promise((resolve) =>
-      setTimeout(resolve, 1500 + Math.random() * 1000)
-    );
+    // await new Promise((resolve) =>
+    //   setTimeout(resolve, 1500 + Math.random() * 1000)
+    // );
 
     const botMessages = await processCommand(currentInput);
     setIsTyping(false);
-      
+
     setMessages((prev) => [...prev, ...botMessages]);
   };
-    
-
   return (
     <>
       <FloatingIcons />
-      <div className="w-full max-w-3xl h-[90vh] flex flex-col bg-gray-900/80 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden z-10">
+      <div className="w-full max-w-3xl h-[90vh] flex flex-col backdrop-blur-xs rounded-2xl shadow-2xl overflow-hidden z-10">
         {/* Header */}
-        <div className="p-4 border-b border-gray-700 bg-linear-to-r from-purple-900 via-rose-900 to-purple-900">
+        <div className="p-4 bg-linear-to-r from-purple-900 via-rose-900 to-purple-900">
           <div className="flex items-center justify-center space-x-3">
             <h1 className="text-2xl font-bold text-center text-white">
               Magic Contact Bot
@@ -77,8 +77,16 @@ export function Chat() {
                     msg.type === "user"
                       ? "bg-linear-to-r from-fuchsia-500 to-fuchsia-600 text-white"
                       : "bg-linear-to-r from-purple-300 to-indigo-200"
-                  } ${msg.type === "bot" ? "whitespace-pre-line" : ""}`}>
-                  {msg.text}
+                  }`}>
+                  {msg.type === "bot" ? (
+                    <div className="prose prose-sm max-w-none">
+                      <ReactMarkdown>
+                        {msg.text}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    msg.text
+                  )}
                 </div>
               )}
             </div>
@@ -104,7 +112,7 @@ export function Chat() {
         </div>
 
         {/* Input Area */}
-        <div className="p-4 border-t border-gray-700">
+        <div className="p-4">
           <div className="flex items-center bg-gray-800 rounded-xl p-2">
             <input
               type="text"
@@ -116,8 +124,13 @@ export function Chat() {
             />
             <button
               onClick={handleSend}
-              className="bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700">
-              Send
+              className=" text-white font-semibold py-2 px-3 rounded-lg ">
+              <img
+                src="/logo.png"
+                width={40}
+                height={40}
+                className="custom-blur scale-110 duration-300 animate-custom-scale"
+              />
             </button>
           </div>
         </div>

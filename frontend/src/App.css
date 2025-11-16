@@ -1,1 +1,30 @@
 @import "tailwindcss";
+
+@keyframes custom-scale {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.08);
+    }
+}
+
+.animate-custom-scale {
+    animation: custom-scale 2.5s ease-in-out infinite;
+}
+
+.custom-blur {
+    filter: drop-shadow(0 0 12px rgba(246, 138, 232, 0.7));
+}
+
+li {
+    margin-left: 1rem;
+}
+
+/* input:focus {
+    outline: none; 
+    
+} */
